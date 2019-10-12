@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "pairs.size",
+      "type": "java.lang.String",
+      "description": "Description for pairs.size."
+  }
+] }
