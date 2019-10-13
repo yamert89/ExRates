@@ -4,5 +4,10 @@
       "name": "pairs.size",
       "type": "java.lang.String",
       "description": "Description for pairs.size."
-  }
-] }
+    },
+    {
+      "name": "timer",
+      "type": "java.lang.String",
+      "description": "Description for timer."
+    }
+  ] }

@@ -6,7 +6,7 @@ import lombok.Setter;
 import java.util.Map;
 import java.util.Queue;
 
-public class CurrencyPair {
+public class CurrencyPair implements Comparable<CurrencyPair>{
 
     private String symbol;
     @Getter @Setter
@@ -20,10 +20,16 @@ public class CurrencyPair {
 
     public CurrencyPair(Currency currency1, Currency currency2) {
         symbol = currency1.getSymbol() + currency2.getSymbol();
+        lastUse = System.currentTimeMillis();
     }
 
     public String getSymbol() {
         lastUse = System.currentTimeMillis();
         return symbol;
+    }
+
+    @Override
+    public int compareTo(CurrencyPair o) {
+        return (int) (lastUse - o.getLastUse());
     }
 }

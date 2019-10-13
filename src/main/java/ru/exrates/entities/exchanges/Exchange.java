@@ -9,7 +9,6 @@ import java.util.Queue;
 
 @Component
 public interface Exchange {
-    double currentPrice(Currency c1, Currency c2);
-    Queue<Double> priceHistory(Currency c1, Currency c2);
-    Map<String, Double> priceChange(Currency c1, Currency c2);
+    void insertPair(CurrencyPair pair);
+    CurrencyPair getPair(Currency c1, Currency c2);
 }
