@@ -1,17 +1,23 @@
 package ru.exrates;
 
-import org.junit.Assert;
+import static org.junit.Assert.*;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
 import static org.mockito.Mockito.*;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import ru.exrates.entities.Currency;
 import ru.exrates.entities.CurrencyPair;
 import ru.exrates.entities.exchanges.BasicExchange;
+import ru.exrates.entities.exchanges.BinanceExchange;
 
 import java.util.HashMap;
 import java.util.TreeSet;
@@ -20,6 +26,7 @@ import java.util.TreeSet;
 @SpringBootTest
 @EnableWebMvc
 public class ExRatesApplicationTests {
+    private final static Logger logger = LogManager.getLogger(ExRatesApplicationTests.class);
 
     @Test
     public void contextLoads() {
@@ -54,15 +61,24 @@ public class ExRatesApplicationTests {
         pairs.add(pair4);
 
 
-        when(exchange.currentPrice(c1, c2)).thenReturn(1.99);
-        when(exchange.priceChange(c1,c2)).thenReturn(map);
+        /*when(exchange.currentPrice(c1, c2)).thenReturn(1.99);
+        when(exchange.priceChange(c1,c2)).thenReturn(map);*/
         when(exchange.getPairs()).thenReturn(pairs);
 
         pairs.pollFirst();
 
-        Assert.assertEquals(pair1, exchange.getPairs().first());
-        Assert.assertEquals(pair3, exchange.getPairs().last());
+        assertEquals(pair1, exchange.getPairs().first());
+        assertEquals(pair3, exchange.getPairs().last());
 
+    }
+
+    @Test
+    public void restTemplate(){
+        RestTemplate template = new RestTemplate();
+        String url = "https://api.binance.com/api/v1/exchangeInfo";
+        ResponseEntity entity = template.getForEntity(url, String.class);
+        logger.debug(entity.toString());
+        assertEquals(200, entity.getStatusCodeValue());
     }
 
 }
