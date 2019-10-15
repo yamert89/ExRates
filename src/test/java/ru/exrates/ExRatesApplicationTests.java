@@ -19,12 +19,13 @@ import ru.exrates.entities.CurrencyPair;
 import ru.exrates.entities.exchanges.BasicExchange;
 import ru.exrates.entities.exchanges.BinanceExchange;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.TreeSet;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@EnableWebMvc
+//@EnableWebMvc
 public class ExRatesApplicationTests {
     private final static Logger logger = LogManager.getLogger(ExRatesApplicationTests.class);
 
@@ -79,6 +80,18 @@ public class ExRatesApplicationTests {
         ResponseEntity entity = template.getForEntity(url, String.class);
         logger.debug(entity.toString());
         assertEquals(200, entity.getStatusCodeValue());
+    }
+
+    @Test
+    public void simpleFunc(){
+
+    }
+    @Test
+    public static void main(String[] args) {
+        System.out.println(System.currentTimeMillis());
+        System.out.println(new Date(1570320000000L));
+        System.out.println(new Date(1570406400000L));
+        System.out.println(new Date(1570492800000L));
     }
 
 }

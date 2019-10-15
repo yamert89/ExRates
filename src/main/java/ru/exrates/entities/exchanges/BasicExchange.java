@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import ru.exrates.configs.Properties;
 import ru.exrates.entities.Currency;
 import ru.exrates.entities.CurrencyPair;
@@ -14,6 +15,12 @@ import java.util.*;
 public abstract class BasicExchange implements Exchange {
     private final static Logger logger = LogManager.getLogger(BasicExchange.class);
     private Properties props;
+    String[] changeVolume;
+    static String URL_ENDPOINT;
+    static String URL_CURRENT_AVG_PRICE;
+    static String URL_INFO;
+    static String URL_PRICE_CHANGE;
+
 
     @Autowired
     public void setProps(Properties props) {
@@ -25,8 +32,6 @@ public abstract class BasicExchange implements Exchange {
 
     BasicExchange() {
         // init pairs
-        /*logger.debug(timerPeriod);
-        logger.debug(maxSize);*/
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
@@ -34,7 +39,7 @@ public abstract class BasicExchange implements Exchange {
             }
         };
         Timer timer = new Timer();
-        timer.schedule(task, 2000, props.getTimerPeriod());
+        timer.schedule(task, 2000/*, props.getTimerPeriod()*/);
     }
 
     @Override
@@ -53,5 +58,9 @@ public abstract class BasicExchange implements Exchange {
     }
 
     abstract void task();
+
+    abstract void currentPrice(CurrencyPair pair) throws JSONException, NullPointerException;
+
+    abstract void priceChange(CurrencyPair pair) throws JSONException;
 
 }
