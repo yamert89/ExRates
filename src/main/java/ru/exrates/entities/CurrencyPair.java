@@ -37,4 +37,9 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
     public int compareTo(CurrencyPair o) {
         return (int) (lastUse - o.getLastUse());
     }
+
+    @Override
+    public String toString() {
+        return symbol + " " + lastUse;
+    }
 }

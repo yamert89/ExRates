@@ -19,9 +19,7 @@ import ru.exrates.entities.CurrencyPair;
 import ru.exrates.entities.exchanges.BasicExchange;
 import ru.exrates.entities.exchanges.BinanceExchange;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.TreeSet;
+import java.util.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -87,11 +85,13 @@ public class ExRatesApplicationTests {
 
     }
     @Test
-    public static void main(String[] args) {
+    public static void main2(String[] args) {
         System.out.println(System.currentTimeMillis());
         System.out.println(new Date(1570320000000L));
         System.out.println(new Date(1570406400000L));
         System.out.println(new Date(1570492800000L));
     }
+
+
 
 }

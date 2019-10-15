@@ -69,6 +69,18 @@ public class BinanceExchange extends BasicExchange {
     @Override
     void task() {
         logger.debug("binance task!!");
+        CurrencyPair pair = null;
+        for (CurrencyPair p : pairs){
+            try {
+                currentPrice(p);
+                Thread.sleep();
+                priceChange(p);
+            }catch (JSONException e){
+                logger.error("task JS ex", e);
+            }catch (InterruptedException e){
+                logger.error(e);
+            }
+        }
 
 
     }
@@ -81,9 +93,15 @@ public class BinanceExchange extends BasicExchange {
 
     @Override
     void priceChange(CurrencyPair pair) throws JSONException {
+        var change = pair.getPriceChange();
         Stream.of(changeVolume).forEach(e -> {
-                   /* var entity = restTemplate.getForEntity(
-                }*/
+                    var entity = restTemplate.getForEntity(URL_PRICE_CHANGE, JSONArray.class);
+                    try {
+                        var array = entity.getBody().getJSONArray(0);
+                        change.put(e, (array.getDouble(2) + array.getDouble(3)) / 2);
+                    }catch (JSONException e1){
+                        logger.error("Crash in lambda", e1);
+                    }
             //
         });
     }

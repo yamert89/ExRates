@@ -10,12 +10,14 @@ import ru.exrates.entities.Currency;
 import ru.exrates.entities.CurrencyPair;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 public abstract class BasicExchange implements Exchange {
     private final static Logger logger = LogManager.getLogger(BasicExchange.class);
     private Properties props;
     String[] changeVolume;
+    int[] limits; //0 - sec, 1 - minute, 2 - hour, 3 - day
     static String URL_ENDPOINT;
     static String URL_CURRENT_AVG_PRICE;
     static String URL_INFO;
