@@ -8,10 +8,9 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import ru.exrates.configs.Properties;
 import ru.exrates.entities.Currency;
 import ru.exrates.entities.CurrencyPair;
-import ru.exrates.entities.exchanges.secondary.Limit;
+import ru.exrates.entities.exchanges.secondary.*;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 
 public abstract class BasicExchange implements Exchange {
@@ -19,10 +18,19 @@ public abstract class BasicExchange implements Exchange {
     private Properties props;
     String[] changeVolume;
     Set<Limit> limits;
+    int errorCode;
     static String URL_ENDPOINT;
     static String URL_CURRENT_AVG_PRICE;
     static String URL_INFO;
     static String URL_PRICE_CHANGE;
+
+    RestTemplateImpl restTemplate;
+
+
+    @Autowired
+    public void setRestTemplate(RestTemplateImpl restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
 
     @Autowired
@@ -61,15 +69,32 @@ public abstract class BasicExchange implements Exchange {
         return pair[0];
     }
 
-    <T> getLimitsValue(T input){
-
-
+    boolean accessible(){
+        for (Limit limit : limits) {
+            if (!limit.isAccessible()) return false;
+        }
+        return true;
     }
+
+    void count(){
+        for (Limit limit : limits) {
+            if (limit.getType() == LimitType.REQUEST) limit.count();
+        }
+    }
+
+    void count(int weight) {
+        for (Limit limit : limits) {
+            if (limit.getType() == LimitType.WEIGHT) limit.count(weight);
+        }
+    }
+
 
     abstract void task();
 
-    abstract void currentPrice(CurrencyPair pair) throws JSONException, NullPointerException;
+    abstract void currentPrice(CurrencyPair pair) throws
+            JSONException, NullPointerException, LimitExceededException, ErrorCodeException;
 
-    abstract void priceChange(CurrencyPair pair) throws JSONException;
+    abstract void priceChange(CurrencyPair pair) throws
+            JSONException, LimitExceededException, ErrorCodeException;
 
 }

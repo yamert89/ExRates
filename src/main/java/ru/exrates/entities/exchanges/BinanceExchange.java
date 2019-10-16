@@ -9,7 +9,7 @@ import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import ru.exrates.entities.CurrencyPair;
-import ru.exrates.entities.exchanges.secondary.Limit;
+import ru.exrates.entities.exchanges.secondary.*;
 
 import java.util.Calendar;
 import java.util.HashSet;
@@ -22,13 +22,7 @@ public class BinanceExchange extends BasicExchange {
 
     //https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#general-api-information
 
-    private RestTemplate restTemplate;
 
-
-    @Autowired
-    public void setRestTemplate(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
 
     static {
         URL_ENDPOINT = "https://api.binance.com";
@@ -44,20 +38,19 @@ public class BinanceExchange extends BasicExchange {
 
     public BinanceExchange() {
         super();
-
+        errorCode = 429;
+        restTemplate.setErrorCode(errorCode);
         limits = new HashSet<>();
-        limits.add(new Limit("SECOND", Calendar.SECOND, 0));
-        limits.add(new Limit("MINUTE", Calendar.MINUTE, 0));
-        limits.add(new Limit("DAY", Calendar.DAY_OF_MONTH, 0));
-
-
+        limits.add(new Limit("MINUTE", LimitType.WEIGHT, Calendar.MINUTE, 0));
 
         changeVolume = new String[]{"3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "8h", "1d", "3d", "1w", "1M"};
 
-        var entity = restTemplate.getForEntity(URL_ENDPOINT + URL_INFO, JSONObject.class).getBody();
 
-        JSONArray symbols = null;
         try {
+            var entity = restTemplate.getForEntityImpl(URL_ENDPOINT + URL_INFO, JSONObject.class, LimitType.WEIGHT).getBody();
+            count(1);
+
+            JSONArray symbols = null;
             var array = entity.getJSONArray("rateLimits");
             for (int i = 0; i < array.length(); i++) {
                 var ob = array.getJSONObject(i);
@@ -87,6 +80,7 @@ public class BinanceExchange extends BasicExchange {
         @Override
         void task () {
             logger.debug("binance task!!");
+            if (!accessible()) logger.debug("Limits excess"); //Todo
 
             CurrencyPair pair = null;
             for (CurrencyPair p : pairs) {
@@ -98,6 +92,10 @@ public class BinanceExchange extends BasicExchange {
                     logger.error("task JS ex", e);
                 } catch (InterruptedException e) {
                     logger.error(e);
+                } catch (LimitExceededException e){
+                    logger.error(e.getMessage());
+                } catch (ErrorCodeException e){
+                    logger.error(e.getMessage());
                 }
             }
 
@@ -105,26 +103,26 @@ public class BinanceExchange extends BasicExchange {
         }
 
         @Override
-        void currentPrice (CurrencyPair pair) throws JSONException, NullPointerException {
-            var entity = restTemplate.getForEntity(URL_CURRENT_AVG_PRICE + "?symbol=" + pair.getSymbol(), JSONObject.class);
+        void currentPrice (CurrencyPair pair) throws JSONException, NullPointerException, LimitExceededException, ErrorCodeException {
+            var entity = restTemplate.getForEntityImpl(URL_CURRENT_AVG_PRICE + "?symbol=" + pair.getSymbol(), JSONObject.class, LimitType.WEIGHT);
             pair.setPrice(Double.parseDouble(entity.getBody().getString("price")));
+            count(1);
         }
 
         @Override
-        void priceChange (CurrencyPair pair) throws JSONException {
+        void priceChange (CurrencyPair pair) throws JSONException, LimitExceededException, ErrorCodeException {
             var change = pair.getPriceChange();
-            Stream.of(changeVolume).forEach(e -> {
-                var entity = restTemplate.getForEntity(URL_PRICE_CHANGE, JSONArray.class);
-                try {
-                    var array = entity.getBody().getJSONArray(0);
-                    change.put(e, (array.getDouble(2) + array.getDouble(3)) / 2);
-                } catch (JSONException e1) {
-                    logger.error("Crash in lambda", e1);
-                }
-                //
-            });
+            for (String s : changeVolume) {
+                var entity = restTemplate.getForEntityImpl(URL_PRICE_CHANGE, JSONArray.class, LimitType.WEIGHT);
+                var array = entity.getBody().getJSONArray(0);
+                change.put(s, (array.getDouble(2) + array.getDouble(3)) / 2);
+            }
+            count();//todo
         }
-    }
+
+
+
+}
 
     /*
     1m
