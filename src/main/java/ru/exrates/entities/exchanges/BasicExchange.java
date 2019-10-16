@@ -8,6 +8,7 @@ import org.springframework.boot.configurationprocessor.json.JSONException;
 import ru.exrates.configs.Properties;
 import ru.exrates.entities.Currency;
 import ru.exrates.entities.CurrencyPair;
+import ru.exrates.entities.exchanges.secondary.Limit;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -17,7 +18,7 @@ public abstract class BasicExchange implements Exchange {
     private final static Logger logger = LogManager.getLogger(BasicExchange.class);
     private Properties props;
     String[] changeVolume;
-    int[] limits; //0 - sec, 1 - minute, 2 - hour, 3 - day
+    Set<Limit> limits;
     static String URL_ENDPOINT;
     static String URL_CURRENT_AVG_PRICE;
     static String URL_INFO;
@@ -34,6 +35,7 @@ public abstract class BasicExchange implements Exchange {
 
     BasicExchange() {
         // init pairs
+
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
@@ -57,6 +59,11 @@ public abstract class BasicExchange implements Exchange {
             if (el.getSymbol().equals(c1.getSymbol() + c2.getSymbol())) pair[0] = el;
         });
         return pair[0];
+    }
+
+    <T> getLimitsValue(T input){
+
+
     }
 
     abstract void task();
