@@ -11,16 +11,19 @@ import java.net.URI;
 @Component
 public class RestTemplateImpl extends RestTemplate {
 
-    @Setter private int errorCode;
+    @Setter private int limitCode;
+    @Setter private int banCode;
 
     public RestTemplateImpl() {
         super();
     }
 
-    public <T> ResponseEntity<T> getForEntityImpl(String url, Class<T> responseType, LimitType limitType) throws RestClientException, LimitExceededException, ErrorCodeException {
-        if (errorCode == 0) throw new ErrorCodeException();
+    public <T> ResponseEntity<T> getForEntityImpl(String url, Class<T> responseType, LimitType limitType)
+            throws RestClientException, LimitExceededException, ErrorCodeException, BanException {
+        if (limitCode == 0 || banCode == 0) throw new ErrorCodeException();
         ResponseEntity<T> resp = super.getForEntity(url, responseType);
-        if (resp.getStatusCode().value() == errorCode) throw new LimitExceededException(limitType);
+        if (resp.getStatusCode().value() == limitCode) throw new LimitExceededException(limitType);
+        if (resp.getStatusCode().value() == banCode) throw new BanException();
         return resp;
     }
 

@@ -7,6 +7,10 @@ public class LimitExceededException extends Exception{
         this.type = type;
     }
 
+    public LimitType getType() {
+        return type;
+    }
+
     @Override
     public String getMessage() {
         return String.format("%1$s %2$s %3$s", "Limit <", type, "> exceeded");

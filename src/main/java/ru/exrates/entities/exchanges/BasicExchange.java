@@ -18,15 +18,14 @@ public abstract class BasicExchange implements Exchange {
     private Properties props;
     String[] changeVolume;
     Set<Limit> limits;
-    int errorCode;
+    int limitCode;
+    int banCode;
     static String URL_ENDPOINT;
     static String URL_CURRENT_AVG_PRICE;
     static String URL_INFO;
     static String URL_PRICE_CHANGE;
 
     RestTemplateImpl restTemplate;
-
-
     @Autowired
     public void setRestTemplate(RestTemplateImpl restTemplate) {
         this.restTemplate = restTemplate;
@@ -92,9 +91,9 @@ public abstract class BasicExchange implements Exchange {
     abstract void task();
 
     abstract void currentPrice(CurrencyPair pair) throws
-            JSONException, NullPointerException, LimitExceededException, ErrorCodeException;
+            JSONException, NullPointerException, LimitExceededException, ErrorCodeException, BanException;
 
     abstract void priceChange(CurrencyPair pair) throws
-            JSONException, LimitExceededException, ErrorCodeException;
+            JSONException, LimitExceededException, ErrorCodeException, BanException;
 
 }

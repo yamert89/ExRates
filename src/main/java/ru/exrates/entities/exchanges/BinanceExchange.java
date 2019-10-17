@@ -36,10 +36,13 @@ public class BinanceExchange extends BasicExchange {
 
 
 
+
     public BinanceExchange() {
         super();
-        errorCode = 429;
-        restTemplate.setErrorCode(errorCode);
+        limitCode = 429;
+        banCode = 418;
+        restTemplate.setLimitCode(limitCode);
+        restTemplate.setBanCode(banCode);
         limits = new HashSet<>();
         limits.add(new Limit("MINUTE", LimitType.WEIGHT, Calendar.MINUTE, 0));
 
@@ -86,15 +89,21 @@ public class BinanceExchange extends BasicExchange {
             for (CurrencyPair p : pairs) {
                 try {
                     currentPrice(p);
-                    Thread.sleep();
                     priceChange(p);
                 } catch (JSONException e) {
                     logger.error("task JS ex", e);
-                } catch (InterruptedException e) {
-                    logger.error(e);
                 } catch (LimitExceededException e){
                     logger.error(e.getMessage());
+                    try {
+                        Thread.sleep(60000);
+                    } catch (InterruptedException ex) {
+                        logger.error("Interrupt ", ex);
+                    }
+                    task();
+                    return;
                 } catch (ErrorCodeException e){
+                    logger.error(e.getMessage());
+                } catch (BanException e){
                     logger.error(e.getMessage());
                 }
             }
@@ -103,14 +112,16 @@ public class BinanceExchange extends BasicExchange {
         }
 
         @Override
-        void currentPrice (CurrencyPair pair) throws JSONException, NullPointerException, LimitExceededException, ErrorCodeException {
+        void currentPrice (CurrencyPair pair)
+                throws JSONException, NullPointerException, LimitExceededException, ErrorCodeException, BanException {
             var entity = restTemplate.getForEntityImpl(URL_CURRENT_AVG_PRICE + "?symbol=" + pair.getSymbol(), JSONObject.class, LimitType.WEIGHT);
             pair.setPrice(Double.parseDouble(entity.getBody().getString("price")));
             count(1);
         }
 
         @Override
-        void priceChange (CurrencyPair pair) throws JSONException, LimitExceededException, ErrorCodeException {
+        void priceChange (CurrencyPair pair)
+                throws JSONException, LimitExceededException, ErrorCodeException, BanException {
             var change = pair.getPriceChange();
             for (String s : changeVolume) {
                 var entity = restTemplate.getForEntityImpl(URL_PRICE_CHANGE, JSONArray.class, LimitType.WEIGHT);
