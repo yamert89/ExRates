@@ -11,4 +11,5 @@ import java.util.Queue;
 public interface Exchange {
     void insertPair(CurrencyPair pair);
     CurrencyPair getPair(Currency c1, Currency c2);
+
 }

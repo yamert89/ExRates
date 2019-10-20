@@ -1,22 +1,42 @@
 package ru.exrates.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import javax.persistence.*;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
+@Entity
 public class CurrencyPair implements Comparable<CurrencyPair>{
+    @Id @GeneratedValue
+    @JsonIgnore
+    @Getter
+    private int id;
 
+    private Long version;
+
+    @Column(unique = true, nullable = false)
     private String symbol;
+
     @Getter @Setter
     private double price;
+
     @Getter
-    private Map<String, Double> priceChange = new HashMap<>();
+    @ElementCollection
+    @MapKeyColumn(name = "PERIOD")
+    @Column(name = "VALUE")
+    private Map<TimePeriod, Double> priceChange = new HashMap<>();
+
     @Getter
-    private Queue<Double> priceHistory = new ArrayBlockingQueue<>(20, true);
+    @ElementCollection
+    private Collection<Double> priceHistory = new ArrayBlockingQueue<>(20, true);
+
     @Getter @Setter
     private long lastUse = System.currentTimeMillis();
 

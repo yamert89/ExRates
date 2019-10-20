@@ -1,12 +1,19 @@
 package ru.exrates.func;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 import ru.exrates.entities.Currency;
 import ru.exrates.entities.CurrencyPair;
+import ru.exrates.entities.exchanges.BasicExchange;
 import ru.exrates.entities.exchanges.BinanceExchange;
 import ru.exrates.entities.exchanges.Exchange;
+import ru.exrates.repos.ExchangeService;
 
+import javax.annotation.PostConstruct;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -14,18 +21,39 @@ import java.util.Set;
 
 @Component
 public class Aggregator {
+    private final static Logger logger = LogManager.getLogger(Aggregator.class);
     private Map<String, Exchange> exchanges;
+    private Map<String, Class<? extends BasicExchange>> exchangeNames = new HashMap<>();
+    private ExchangeService exchangeService;
 
-    private BinanceExchange exchange;
-
+    {
+        exchangeNames.put("binance", BinanceExchange.class);
+    }
     @Autowired
-    public void setExchange(BinanceExchange exchange) {
-        this.exchange = exchange;
+    public void setExchangeService(ExchangeService exchangeService) {
+        this.exchangeService = exchangeService;
     }
 
     public Aggregator() {
         exchanges = new HashMap<>();
-        exchanges.put("binance", exchange);
+    }
+
+    @PostConstruct
+    private void init(){
+        logger.debug(exchangeService);
+        for (var set : exchangeNames.entrySet()) {
+            BasicExchange exchange = exchangeService.find(set.getKey());
+            if (exchange == null) {
+                try {
+                    Class claz = Class.forName(set.getValue().getCanonicalName());
+                    var ob = claz.getConstructor().newInstance();
+                    exchange = set.getValue().cast(ob);
+                    exchanges.put(set.getKey(), exchangeService.persist(exchange));
+                } catch (Exception e) {
+                    logger.error("Exchange initialize crashed", e);
+                }
+            }
+        }
     }
 
     //private Set<Currency> currencies = new HashSet<>();
@@ -43,5 +71,7 @@ public class Aggregator {
         });
         return curs;
     }
+
+
 
 }
