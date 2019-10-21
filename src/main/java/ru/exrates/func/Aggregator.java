@@ -46,7 +46,7 @@ public class Aggregator {
             if (exchange == null) {
                 try {
                     Class claz = Class.forName(set.getValue().getCanonicalName());
-                    var ob = claz.getConstructor().newInstance();
+                    var ob = claz.getConstructor(Boolean.class).newInstance(true);
                     exchange = set.getValue().cast(ob);
                     exchanges.put(set.getKey(), exchangeService.persist(exchange));
                 } catch (Exception e) {

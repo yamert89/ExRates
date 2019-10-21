@@ -31,37 +31,6 @@ public class BinanceExchange extends BasicExchange {
 
     public BinanceExchange() {
         super();
-        logger.debug("constructor binance");
-        name = "binance";
-        limitCode = 429;
-        banCode = 418;
-
-        limits = new HashSet<>();
-        limits.add(new Limit("MINUTE", LimitType.WEIGHT, Calendar.MINUTE, 0)); //todo limit value
-
-        changePeriods = new LinkedList<>();
-        Collections.addAll(changePeriods,
-                new TimePeriod(Duration.ofMinutes(3), "3m"),
-                new TimePeriod(Duration.ofMinutes(5), "5m"),
-                new TimePeriod(Duration.ofMinutes(15), "15m"),
-                new TimePeriod(Duration.ofMinutes(30), "30m"),
-                new TimePeriod(Duration.ofHours(1), "1h"),
-                new TimePeriod(Duration.ofHours(4), "4h"),
-                new TimePeriod(Duration.ofHours(6), "6h"),
-                new TimePeriod(Duration.ofHours(8), "8h"),
-                new TimePeriod(Duration.ofHours(12), "12h"),
-                new TimePeriod(Duration.ofDays(1), "1d"),
-                new TimePeriod(Duration.ofDays(3), "3d"),
-                new TimePeriod(Duration.ofDays(7), "1w"),
-                new TimePeriod(Duration.ofDays(30), "1M"));
-
-
-
-        //"3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", "1M"
-
-
-
-
     }
 
     @Override
@@ -115,6 +84,31 @@ public class BinanceExchange extends BasicExchange {
     }
     @PostConstruct
     private void init(){
+        if (getVersion() != 0) return;
+        logger.debug("Postconstruct binance");
+        name = "binance";
+        limitCode = 429;
+        banCode = 418;
+
+        limits = new HashSet<>();
+        limits.add(new Limit("MINUTE", LimitType.WEIGHT, Calendar.MINUTE, 0)); //todo limit value
+
+        changePeriods = new LinkedList<>();
+        Collections.addAll(changePeriods,
+                new TimePeriod(Duration.ofMinutes(3), "3m"),
+                new TimePeriod(Duration.ofMinutes(5), "5m"),
+                new TimePeriod(Duration.ofMinutes(15), "15m"),
+                new TimePeriod(Duration.ofMinutes(30), "30m"),
+                new TimePeriod(Duration.ofHours(1), "1h"),
+                new TimePeriod(Duration.ofHours(4), "4h"),
+                new TimePeriod(Duration.ofHours(6), "6h"),
+                new TimePeriod(Duration.ofHours(8), "8h"),
+                new TimePeriod(Duration.ofHours(12), "12h"),
+                new TimePeriod(Duration.ofDays(1), "1d"),
+                new TimePeriod(Duration.ofDays(3), "3d"),
+                new TimePeriod(Duration.ofDays(7), "1w"),
+                new TimePeriod(Duration.ofDays(30), "1M"));
+
         restTemplate.setLimitCode(limitCode);
         restTemplate.setBanCode(banCode);
         try {

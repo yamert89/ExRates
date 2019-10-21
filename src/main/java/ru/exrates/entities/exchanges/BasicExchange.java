@@ -1,6 +1,7 @@
 package ru.exrates.entities.exchanges;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,9 @@ public abstract class BasicExchange implements Exchange {
     @Id @GeneratedValue
     @Getter
     private Integer id;
+    @Getter @Setter
+    @Version
+    private long version;
     private final static Logger logger = LogManager.getLogger(BasicExchange.class);
     static String URL_ENDPOINT;
     static String URL_CURRENT_AVG_PRICE;
