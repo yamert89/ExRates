@@ -3,6 +3,7 @@ package ru.exrates.func;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 import ru.exrates.entities.Currency;
@@ -25,10 +26,16 @@ public class Aggregator {
     private Map<String, Exchange> exchanges;
     private Map<String, Class<? extends BasicExchange>> exchangeNames = new HashMap<>();
     private ExchangeService exchangeService;
+    private ApplicationContext applicationContext;
 
     {
         exchangeNames.put("binance", BinanceExchange.class);
     }
+    @Autowired
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
+
     @Autowired
     public void setExchangeService(ExchangeService exchangeService) {
         this.exchangeService = exchangeService;
@@ -45,10 +52,11 @@ public class Aggregator {
             BasicExchange exchange = exchangeService.find(set.getKey());
             if (exchange == null) {
                 try {
-                    Class claz = Class.forName(set.getValue().getCanonicalName());
-                    var ob = claz.getConstructor(Boolean.class).newInstance(true);
-                    exchange = set.getValue().cast(ob);
-                    exchanges.put(set.getKey(), exchangeService.persist(exchange));
+                    exchange = applicationContext.getBean(set.getValue());
+                    /*Class claz = Class.forName(set.getValue().getCanonicalName());
+                    var ob = claz.getConstructor().newInstance();
+                    exchange = set.getValue().cast(ob);*/
+                    exchanges.put(set.getKey(), exchangeService.persist(exchange)); //todo keep only top pairs
                 } catch (Exception e) {
                     logger.error("Exchange initialize crashed", e);
                 }

@@ -1,10 +1,13 @@
 package ru.exrates.entities.exchanges;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.stereotype.Component;
 import ru.exrates.entities.CurrencyPair;
 import ru.exrates.entities.TimePeriod;
 import ru.exrates.entities.exchanges.secondary.*;
@@ -15,7 +18,7 @@ import javax.persistence.Entity;
 import java.time.Duration;
 import java.util.*;
 
-
+@Component
 @Entity @DiscriminatorValue("Binance")
 public class BinanceExchange extends BasicExchange {
     private final static Logger logger = LogManager.getLogger(BinanceExchange.class);
@@ -112,7 +115,9 @@ public class BinanceExchange extends BasicExchange {
         restTemplate.setLimitCode(limitCode);
         restTemplate.setBanCode(banCode);
         try {
-            var entity = restTemplate.getForEntityImpl(URL_ENDPOINT + URL_INFO, JSONObject.class, LimitType.WEIGHT).getBody();
+            var entity = new JSONObject(restTemplate.getForEntityImpl(URL_ENDPOINT + URL_INFO, String.class, LimitType.WEIGHT)
+                    .getBody());
+
             count(1);
 
             JSONArray symbols = null;
@@ -138,7 +143,8 @@ public class BinanceExchange extends BasicExchange {
         } catch (Exception e) {
             logger.error("task NPE", e);
         }
-        logger.debug("exchange inited");
+
+        logger.debug("exchange initialized with " + pairs.size() + " pairs");
     }
 
 

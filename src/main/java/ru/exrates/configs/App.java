@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.client.RestTemplate;
 import ru.exrates.entities.CurrencyPair;
+import ru.exrates.entities.exchanges.BasicExchange;
 
 import javax.sql.DataSource;
 
@@ -20,6 +21,8 @@ public class App {
 
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder){ return builder.build();}
+
+
 
     /*@Bean
     @ConfigurationProperties("app.datasource")

@@ -1,15 +1,14 @@
 package ru.exrates.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
+import java.time.Instant;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
 @Entity
@@ -38,7 +37,7 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
     private Collection<Double> priceHistory = new ArrayBlockingQueue<>(20, true);
 
     @Getter @Setter
-    private long lastUse = System.currentTimeMillis();
+    private Instant lastUse = Instant.now();
 
     public CurrencyPair(Currency currency1, Currency currency2) {
         symbol = currency1.getSymbol() + currency2.getSymbol();
@@ -49,17 +48,30 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
     }
 
     public String getSymbol() {
-        lastUse = System.currentTimeMillis();
         return symbol;
     }
 
     @Override
     public int compareTo(CurrencyPair o) {
-        return (int) (lastUse - o.getLastUse());
+        return lastUse.isAfter(o.getLastUse()) ? 1 : -1;
     }
 
     @Override
     public String toString() {
         return symbol + " " + lastUse;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CurrencyPair pair = (CurrencyPair) o;
+        return id == pair.id &&
+                symbol.equals(pair.symbol);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, symbol);
     }
 }
