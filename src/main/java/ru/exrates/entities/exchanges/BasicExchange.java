@@ -32,10 +32,11 @@ public abstract class BasicExchange implements Exchange {
     static String URL_PRICE_CHANGE;
 
     @ManyToMany(cascade = CascadeType.PERSIST)
+    @Getter
     List<TimePeriod> changePeriods;
     @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST)
     @Getter
-    public Set<Limit> limits;
+    Set<Limit> limits;
     int limitCode;
     int banCode;
     @Getter

@@ -11,14 +11,13 @@ import ru.exrates.entities.CurrencyPair;
 import ru.exrates.entities.exchanges.BasicExchange;
 import ru.exrates.entities.exchanges.BinanceExchange;
 import ru.exrates.entities.exchanges.Exchange;
+import ru.exrates.entities.exchanges.secondary.Limit;
 import ru.exrates.repos.ExchangeService;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.IntStream;
 
 @Component
 public class Aggregator {
@@ -63,10 +62,18 @@ public class Aggregator {
                     logger.error("Exchange initialize crashed", e);
                 }
             }else {
-                exchange.getLimits().forEach(limit -> {
-                    limit.getInterval().getSeconds() / limit.getLimitValue();
-                        }
-                exchangeService.fillPairs(
+                var tLimits = new LinkedList<Integer>();
+                var ammountReqs = exchange.getChangePeriods().size() + 1;
+                for (Limit limit : exchange.getLimits()) {
+                    var l = (int)((limit.getLimitValue() / (double)(limit.getInterval().getSeconds() / 60)) / ammountReqs); //todo test    //todo check for seconds limits
+                    logger.debug("tLimit = " + l);
+                    tLimits.add(l);
+                }
+                int counter = 0;
+                for (Integer tLimit : tLimits) {
+                    counter += tLimit;
+                }
+                exchangeService.fillPairs(counter / tLimits.size());
             }
         }
     }
@@ -81,9 +88,7 @@ public class Aggregator {
         var tempCur = new Currency(curName1);
         var tempCur2 = new Currency(curName2);
         var curs = new HashSet<CurrencyPair>();
-        exchanges.forEach((key, val) -> {
-            curs.add(val.getPair(tempCur, tempCur2));
-        });
+        exchanges.forEach((key, val) -> curs.add(val.getPair(tempCur, tempCur2)));
         return curs;
     }
 
