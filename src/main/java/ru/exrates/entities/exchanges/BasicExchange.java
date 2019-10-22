@@ -30,6 +30,7 @@ public abstract class BasicExchange implements Exchange {
     static String URL_CURRENT_AVG_PRICE;
     static String URL_INFO;
     static String URL_PRICE_CHANGE;
+    static String URL_PING;
 
     @ManyToMany(cascade = CascadeType.PERSIST)
     @Getter

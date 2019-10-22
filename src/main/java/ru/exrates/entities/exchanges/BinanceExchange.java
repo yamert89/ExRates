@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import ru.exrates.entities.CurrencyPair;
 import ru.exrates.entities.TimePeriod;
@@ -30,6 +31,7 @@ public class BinanceExchange extends BasicExchange {
         URL_CURRENT_AVG_PRICE = "/api/v3/avgPrice";
         URL_INFO = "/api/v1/exchangeInfo";
         URL_PRICE_CHANGE = "";
+        URL_PING = "/api/v1/ping";
     }
 
     public BinanceExchange() {
@@ -39,6 +41,8 @@ public class BinanceExchange extends BasicExchange {
     @Override
     void task () {
         if (getId() == null) return;
+        var en = restTemplate.getForEntity(URL_ENDPOINT + URL_PING, String.class).getStatusCode().value();
+        if ( en != 200) return;
         logger.debug("binance task!!");
         if (!accessible()) logger.debug("Limits excess"); //Todo
 
@@ -138,35 +142,25 @@ public class BinanceExchange extends BasicExchange {
             for (int i = 0; i < symbols.length(); i++) {
                 pairs.add(new CurrencyPair(symbols.getJSONObject(i).getString("symbol")));
             }
+            logger.debug("exchange initialized with " + pairs.size() + " pairs");
         } catch (JSONException e) {
             logger.error("task JSON E", e);
-        } catch (Exception e) {
-            logger.error("task NPE", e);
+        } catch (LimitExceededException e) {
+            logger.error(e.getMessage());
+        } catch (BanException e){
+            logger.error(e.getMessage());
+        } catch (NullPointerException e){
+            logger.error("NPE init");
+        } catch (Exception e){
+            logger.error("Unknown exc in init", e);
         }
 
-        logger.debug("exchange initialized with " + pairs.size() + " pairs");
+
     }
 
 
 }
 
-    /*
-    1m
-3m
-5m
-15m
-30m
-1h
-2h
-4h
-6h
-8h
-12h
-1d
-3d
-1w
-1M
-     */
 
     /*
     {
