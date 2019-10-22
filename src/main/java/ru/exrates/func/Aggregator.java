@@ -56,10 +56,17 @@ public class Aggregator {
                     /*Class claz = Class.forName(set.getValue().getCanonicalName());
                     var ob = claz.getConstructor().newInstance();
                     exchange = set.getValue().cast(ob);*/
-                    exchanges.put(set.getKey(), exchangeService.persist(exchange)); //todo keep only top pairs
+                    exchange = exchangeService.persist(exchange);
+                    exchanges.put(set.getKey(), exchange); //todo keep only top pairs
+
                 } catch (Exception e) {
                     logger.error("Exchange initialize crashed", e);
                 }
+            }else {
+                exchange.getLimits().forEach(limit -> {
+                    limit.getInterval().getSeconds() / limit.getLimitValue();
+                        }
+                exchangeService.fillPairs(
             }
         }
     }

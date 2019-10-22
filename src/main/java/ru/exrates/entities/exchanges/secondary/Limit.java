@@ -3,8 +3,10 @@ package ru.exrates.entities.exchanges.secondary;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import ru.exrates.repos.DurationConverter;
 
 import javax.persistence.*;
+import java.time.Duration;
 
 @Entity
 @Table(name = "Limits")
@@ -13,8 +15,8 @@ public class Limit {
     @GeneratedValue
     private Integer id;
     @Getter @Setter private String name;
-            @Column(name = "_interval")
-            @Getter private int interval;
+            @Column(name = "_interval") @Convert(converter = DurationConverter.class)
+            @Getter private Duration interval;
             @Enumerated(value = EnumType.STRING)
             @Column(length = 20)
             @Getter private LimitType type;
@@ -23,7 +25,7 @@ public class Limit {
                     @Column(name = "_accessible")
                     private boolean accessible;
 
-    public Limit(String name, LimitType type, int interval, int limit) {
+    public Limit(String name, LimitType type, Duration interval, int limit) {
         this.name = name;
         this.type = type;
         this.limitValue = limit;

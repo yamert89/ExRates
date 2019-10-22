@@ -94,7 +94,7 @@ public class BinanceExchange extends BasicExchange {
         banCode = 418;
 
         limits = new HashSet<>();
-        limits.add(new Limit("MINUTE", LimitType.WEIGHT, Calendar.MINUTE, 0)); //todo limit value
+        limits.add(new Limit("MINUTE", LimitType.WEIGHT, Duration.ofMinutes(1), 0)); //todo limit value
 
         changePeriods = new LinkedList<>();
         Collections.addAll(changePeriods,

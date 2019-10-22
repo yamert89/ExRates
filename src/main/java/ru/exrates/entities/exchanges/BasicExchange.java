@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.annotations.BatchSize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import ru.exrates.configs.Properties;
@@ -33,7 +34,8 @@ public abstract class BasicExchange implements Exchange {
     @ManyToMany(cascade = CascadeType.PERSIST)
     List<TimePeriod> changePeriods;
     @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST)
-    Set<Limit> limits;
+    @Getter
+    public Set<Limit> limits;
     int limitCode;
     int banCode;
     @Getter
