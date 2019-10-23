@@ -1,4 +1,6 @@
-package ru.exrates.entities.exchanges.secondary;
+package ru.exrates.entities.exchanges.secondary.exceptions;
+
+import ru.exrates.entities.exchanges.secondary.LimitType;
 
 public class LimitExceededException extends Exception{
     private LimitType type;

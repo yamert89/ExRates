@@ -1,17 +1,17 @@
 package ru.exrates.entities.exchanges;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import ru.exrates.entities.CurrencyPair;
 import ru.exrates.entities.TimePeriod;
 import ru.exrates.entities.exchanges.secondary.*;
+import ru.exrates.entities.exchanges.secondary.exceptions.BanException;
+import ru.exrates.entities.exchanges.secondary.exceptions.ErrorCodeException;
+import ru.exrates.entities.exchanges.secondary.exceptions.LimitExceededException;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.DiscriminatorValue;

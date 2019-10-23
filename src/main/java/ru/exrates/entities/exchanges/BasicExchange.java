@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.annotations.BatchSize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import ru.exrates.configs.Properties;
@@ -12,6 +11,9 @@ import ru.exrates.entities.Currency;
 import ru.exrates.entities.CurrencyPair;
 import ru.exrates.entities.TimePeriod;
 import ru.exrates.entities.exchanges.secondary.*;
+import ru.exrates.entities.exchanges.secondary.exceptions.BanException;
+import ru.exrates.entities.exchanges.secondary.exceptions.ErrorCodeException;
+import ru.exrates.entities.exchanges.secondary.exceptions.LimitExceededException;
 
 import javax.persistence.*;
 import java.util.*;

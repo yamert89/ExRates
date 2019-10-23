@@ -1,4 +1,4 @@
-package ru.exrates.entities.exchanges.secondary;
+package ru.exrates.entities.exchanges.secondary.exceptions;
 
 public class BanException extends Exception {
 
