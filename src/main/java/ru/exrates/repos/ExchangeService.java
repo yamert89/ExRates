@@ -1,6 +1,7 @@
 package ru.exrates.repos;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.exrates.entities.CurrencyPair;
@@ -23,6 +24,7 @@ public class ExchangeService {
     }
 
     @Transactional
+    @Nullable
     public BasicExchange find(String name){
         try {
             return exchangeRepository.findByName(name);

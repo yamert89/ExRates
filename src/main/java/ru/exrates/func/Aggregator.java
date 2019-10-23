@@ -46,9 +46,11 @@ public class Aggregator {
 
     @PostConstruct
     private void init(){
+        logger.debug("Postconstruct aggregator init");
         logger.debug(exchangeService);
         for (var set : exchangeNames.entrySet()) {
             BasicExchange exchange = exchangeService.find(set.getKey());
+            int pairsSize = 0;
             if (exchange == null) {
                 try {
                     exchange = applicationContext.getBean(set.getValue());
@@ -56,24 +58,16 @@ public class Aggregator {
                     var ob = claz.getConstructor().newInstance();
                     exchange = set.getValue().cast(ob);*/
                     exchange = exchangeService.persist(exchange);
-                    exchanges.put(set.getKey(), exchange); //todo keep only top pairs
-
+                    exchanges.put(set.getKey(), exchange);
+                    pairsSize = calculatePairsSize(exchange);
+                    var pairs = (TreeSet<CurrencyPair>) exchange.getPairs();
+                    while (pairs.size() > pairsSize) pairs.pollLast();
                 } catch (Exception e) {
                     logger.error("Exchange initialize crashed", e);
                 }
             }else {
-                var tLimits = new LinkedList<Integer>();
-                var ammountReqs = exchange.getChangePeriods().size() + 1;
-                for (Limit limit : exchange.getLimits()) {
-                    var l = (int)((limit.getLimitValue() / (double)(limit.getInterval().getSeconds() / 60)) / ammountReqs); //todo test    //todo check for seconds limits
-                    logger.debug("tLimit = " + l);
-                    tLimits.add(l);
-                }
-                int counter = 0;
-                for (Integer tLimit : tLimits) {
-                    counter += tLimit;
-                }
-                exchangeService.fillPairs(counter / tLimits.size());
+                pairsSize = calculatePairsSize(exchange);
+                exchangeService.fillPairs(pairsSize);
             }
         }
     }
@@ -90,6 +84,22 @@ public class Aggregator {
         var curs = new HashSet<CurrencyPair>();
         exchanges.forEach((key, val) -> curs.add(val.getPair(tempCur, tempCur2)));
         return curs;
+    }
+
+    //todo test    //todo check for seconds limit
+    private int calculatePairsSize(BasicExchange exchange){
+        var tLimits = new LinkedList<Integer>();
+        var ammountReqs = exchange.getChangePeriods().size() + 1;
+        for (Limit limit : exchange.getLimits()) {
+            var l = (int)((limit.getLimitValue() / (double)(limit.getInterval().getSeconds() / 60)) / ammountReqs);
+            logger.debug("tLimit = " + l);
+            tLimits.add(l);
+        }
+        int counter = 0;
+        for (Integer tLimit : tLimits) {
+            counter += tLimit;
+        }
+        return counter / tLimits.size();
     }
 
 

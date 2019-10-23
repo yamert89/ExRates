@@ -21,9 +21,7 @@ public class Limit {
             @Column(length = 20)
             @Getter private LimitType type;
     @Getter @Setter private int limitValue;
-    @Getter @Setter private int counter;
-                    @Column(name = "_accessible")
-                    private boolean accessible;
+
 
     public Limit(String name, LimitType type, Duration interval, int limit) {
         this.name = name;
@@ -32,16 +30,4 @@ public class Limit {
         this.interval = interval;
     }
 
-    public void count() {
-        ++this.counter;
-        if (counter == limitValue) accessible = false;
-    }
-
-    public void count(int weight){
-        counter += weight;
-    }
-
-    public boolean isAccessible() {
-        return accessible;
-    }
 }

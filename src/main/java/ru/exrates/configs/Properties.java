@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @PropertySource("classpath:application.properties")
 public class Properties {
     @Value("${timer}")
-    private String timerPeriod;
+    private String timerPeriod; //todo min period - premium function
 
     @Value("${pairs.size}")
     private String maxSize;

@@ -39,24 +39,25 @@ public class BinanceExchange extends BasicExchange {
     }
 
     @Override
-    void task () {
+    void task () throws RuntimeException{
         if (getId() == null) return;
-        var en = restTemplate.getForEntity(URL_ENDPOINT + URL_PING, String.class).getStatusCode().value();
-        if ( en != 200) return;
+        var resp = restTemplate.getForEntity(URL_ENDPOINT + URL_PING, String.class).getStatusCode().value();
+        if (resp != 200) return;
         logger.debug("binance task!!");
-        if (!accessible()) logger.debug("Limits excess"); //Todo
-
         CurrencyPair pair = null;
         for (CurrencyPair p : pairs) {
             try {
+
                 currentPrice(p);
                 priceChange(p);
+
             } catch (JSONException e) {
                 logger.error("task JS ex", e);
             } catch (LimitExceededException e){
                 logger.error(e.getMessage());
                 try {
-                    Thread.sleep(60000); //todo add logic
+                    sleepValueSeconds *= 2;
+                    Thread.sleep(sleepValueSeconds);
                 } catch (InterruptedException ex) {
                     logger.error("Interrupt ", ex);
                 }
@@ -66,6 +67,7 @@ public class BinanceExchange extends BasicExchange {
                 logger.error(e.getMessage());
             } catch (BanException e){
                 logger.error(e.getMessage());
+                throw new RuntimeException("You are banned from " + this.name);
             }
         }
     }
@@ -75,7 +77,7 @@ public class BinanceExchange extends BasicExchange {
             throws JSONException, NullPointerException, LimitExceededException, ErrorCodeException, BanException {
         var entity = restTemplate.getForEntityImpl(URL_CURRENT_AVG_PRICE + "?symbol=" + pair.getSymbol(), JSONObject.class, LimitType.WEIGHT);
         pair.setPrice(Double.parseDouble(entity.getBody().getString("price")));
-        count(1);
+
     }
 
     @Override
@@ -87,18 +89,18 @@ public class BinanceExchange extends BasicExchange {
             var array = entity.getBody().getJSONArray(0);
             change.put(per, (array.getDouble(2) + array.getDouble(3)) / 2);
         }
-        count();//todo
+
     }
     @PostConstruct
     private void init(){
-        if (getVersion() != 0) return;
         logger.debug("Postconstruct binance");
+        if (getVersion() != 0) return;
         name = "binance";
         limitCode = 429;
         banCode = 418;
 
         limits = new HashSet<>();
-        limits.add(new Limit("MINUTE", LimitType.WEIGHT, Duration.ofMinutes(1), 0)); //todo limit value
+
 
         changePeriods = new LinkedList<>();
         Collections.addAll(changePeriods,
@@ -122,16 +124,19 @@ public class BinanceExchange extends BasicExchange {
             var entity = new JSONObject(restTemplate.getForEntityImpl(URL_ENDPOINT + URL_INFO, String.class, LimitType.WEIGHT)
                     .getBody());
 
-            count(1);
+
+
 
             JSONArray symbols = null;
             var array = entity.getJSONArray("rateLimits");
+
+            limits.add(new Limit("MINUTE", LimitType.WEIGHT, Duration.ofMinutes(1), 1200));
+
             for (int i = 0; i < array.length(); i++) {
                 var ob = array.getJSONObject(i);
                 for (Limit limit : limits) {
                     var name = ob.getString("interval");
                     if (name.equals(limit.getName())) {
-                        limit.setName(name);
                         limit.setLimitValue(ob.getInt("limit"));
                     }
                 }
@@ -160,6 +165,10 @@ public class BinanceExchange extends BasicExchange {
 
 
 }
+
+/*
+JSON
+ */
 
 
     /*

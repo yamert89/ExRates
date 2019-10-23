@@ -40,6 +40,7 @@ public abstract class BasicExchange implements Exchange {
     Set<Limit> limits;
     int limitCode;
     int banCode;
+    int sleepValueSeconds = 30;
     @Getter
     String name;
     @Getter
@@ -70,11 +71,18 @@ public abstract class BasicExchange implements Exchange {
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
-                task();
+                try {
+                    task();
+                }catch (RuntimeException e){
+                    this.cancel();
+                    logger.error(e);
+                    logger.debug("task cancelled because you are banned");
+                }
             }
         };
         Timer timer = new Timer();
         timer.schedule(task, 10000000/*, props.getTimerPeriod()*/); //todo value
+        timer.cancel();
     }
 
     @Override
@@ -92,27 +100,8 @@ public abstract class BasicExchange implements Exchange {
         return pair[0];
     }
 
-    boolean accessible(){
-        for (Limit limit : limits) {
-            if (!limit.isAccessible()) return false;
-        }
-        return true;
-    }
 
-    void count(){
-        for (Limit limit : limits) {
-            if (limit.getType() == LimitType.REQUEST) limit.count();
-        }
-    }
-
-    void count(int weight) {
-        for (Limit limit : limits) {
-            if (limit.getType() == LimitType.WEIGHT) limit.count(weight);
-        }
-    }
-
-
-    abstract void task();
+    abstract void task() throws RuntimeException;
 
     abstract void currentPrice(CurrencyPair pair) throws
             JSONException, NullPointerException, LimitExceededException, ErrorCodeException, BanException;
