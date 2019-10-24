@@ -18,11 +18,12 @@ import ru.exrates.entities.Currency;
 import ru.exrates.entities.CurrencyPair;
 import ru.exrates.entities.exchanges.BasicExchange;
 import ru.exrates.entities.exchanges.BinanceExchange;
+import ru.exrates.entities.exchanges.secondary.collections.UpdateListenerMap;
 
 import java.util.*;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+//@RunWith(SpringRunner.class)
+//@SpringBootTest
 //@EnableWebMvc
 public class ExRatesApplicationTests {
     private final static Logger logger = LogManager.getLogger(ExRatesApplicationTests.class);
@@ -66,8 +67,8 @@ public class ExRatesApplicationTests {
 
         pairs.pollFirst();
 
-        assertEquals(pair1, exchange.getPairs().first());
-        assertEquals(pair3, exchange.getPairs().last());
+        assertEquals(pair1, ((TreeSet) exchange.getPairs()).first());
+        assertEquals(pair3, ((TreeSet)exchange.getPairs()).last());
 
     }
 

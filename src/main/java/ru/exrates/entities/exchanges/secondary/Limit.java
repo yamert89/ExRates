@@ -2,6 +2,7 @@ package ru.exrates.entities.exchanges.secondary;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.exrates.repos.DurationConverter;
 
@@ -10,6 +11,7 @@ import java.time.Duration;
 
 @Entity
 @Table(name = "Limits")
+@NoArgsConstructor
 public class Limit {
     @Id
     @GeneratedValue

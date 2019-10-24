@@ -14,5 +14,4 @@ import java.util.Set;
 @NoRepositoryBean
 public interface ExchangeModRepo extends JpaRepository<BasicExchange, Integer> {
     BasicExchange findByName(String name) throws NoResultException;
-    Set<CurrencyPair> fillpairs(int amount);
 }

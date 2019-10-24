@@ -1,10 +1,12 @@
 package ru.exrates.entities;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Objects;
 
+@NoArgsConstructor
 public class Currency {
     @Getter @Setter
     private String name;
@@ -12,8 +14,6 @@ public class Currency {
     @Getter @Setter
     private String symbol;
 
-    public Currency() {
-    }
 
     public Currency(String symbol) {
         this.symbol = symbol;

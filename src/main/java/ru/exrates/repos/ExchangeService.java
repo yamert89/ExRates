@@ -1,12 +1,15 @@
 package ru.exrates.repos;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.exrates.entities.CurrencyPair;
 import ru.exrates.entities.exchanges.BasicExchange;
 import ru.exrates.entities.exchanges.Exchange;
+import ru.exrates.repos.daos.CurrensyRepository;
 import ru.exrates.repos.daos.ExchangeRepository;
 
 
@@ -18,9 +21,22 @@ import java.util.Set;
 public class ExchangeService {
 
     private ExchangeRepository exchangeRepository;
+    private CurrensyRepository currensyRepository;
+    @Autowired
+    public void setCurrensyRepository(CurrensyRepository currensyRepository) {
+        this.currensyRepository = currensyRepository;
+    }
+
     @Autowired
     public void setExchangeRepository(ExchangeRepository exchangeRepository) {
         this.exchangeRepository = exchangeRepository;
+    }
+
+    @Transactional
+    @Nullable
+    public BasicExchange find(int id){
+        var exch = exchangeRepository.findById(id);
+        return exch.orElse(null);
     }
 
     @Transactional
@@ -39,9 +55,11 @@ public class ExchangeService {
     }
 
     @Transactional
-    public Set<CurrencyPair> fillPairs(int amount){
-        return exchangeRepository.fillpairs(amount);
+    public Page<CurrencyPair> fillPairs(int amount){
+        return currensyRepository.findAll(PageRequest.of(1, amount));
     }
+
+
 
 
 

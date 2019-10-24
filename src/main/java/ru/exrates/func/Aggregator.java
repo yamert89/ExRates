@@ -60,8 +60,10 @@ public class Aggregator {
                     exchange = exchangeService.persist(exchange);
                     exchanges.put(set.getKey(), exchange);
                     pairsSize = calculatePairsSize(exchange);
-                    var pairs = (TreeSet<CurrencyPair>) exchange.getPairs();
+                    var pairs = new TreeSet<>(exchange.getPairs());
                     while (pairs.size() > pairsSize) pairs.pollLast();
+                    exchange.getPairs().clear();
+                    Collections.addAll(exchange.getPairs(), pairs.toArray(new CurrencyPair[]{}));
                 } catch (Exception e) {
                     logger.error("Exchange initialize crashed", e);
                 }
@@ -87,7 +89,7 @@ public class Aggregator {
     }
 
     //todo test    //todo check for seconds limit
-    private int calculatePairsSize(BasicExchange exchange){
+    public int calculatePairsSize(BasicExchange exchange){
         var tLimits = new LinkedList<Integer>();
         var ammountReqs = exchange.getChangePeriods().size() + 1;
         for (Limit limit : exchange.getLimits()) {

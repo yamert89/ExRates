@@ -102,7 +102,7 @@ public class BinanceExchange extends BasicExchange {
         limits = new HashSet<>();
 
 
-        changePeriods = new LinkedList<>();
+        changePeriods = new ArrayList<>();
         Collections.addAll(changePeriods,
                 new TimePeriod(Duration.ofMinutes(3), "3m"),
                 new TimePeriod(Duration.ofMinutes(5), "5m"),

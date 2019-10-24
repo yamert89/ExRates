@@ -3,6 +3,7 @@ package ru.exrates.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
 import ru.exrates.entities.exchanges.secondary.collections.UpdateListenerMap;
@@ -13,6 +14,7 @@ import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
 @Entity
+@NoArgsConstructor
 public class CurrencyPair implements Comparable<CurrencyPair>{
     @Id @GeneratedValue
     @JsonIgnore

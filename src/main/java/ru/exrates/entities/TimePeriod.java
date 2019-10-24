@@ -2,6 +2,7 @@ package ru.exrates.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.exrates.repos.DurationConverter;
 
@@ -10,7 +11,8 @@ import java.time.Duration;
 import java.time.Period;
 
 
-@Entity
+@Entity @Table(name = "change_periods")
+@NoArgsConstructor
 public class TimePeriod {
     @Id
     @GeneratedValue
@@ -20,6 +22,7 @@ public class TimePeriod {
     @Getter @Setter
     @Column(nullable = false) @Convert(converter = DurationConverter.class)
     private Duration period;
+
     @Getter @Setter
     @Column(nullable = false, unique = true)
     private String name;

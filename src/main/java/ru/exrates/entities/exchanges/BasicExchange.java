@@ -34,10 +34,10 @@ public abstract class BasicExchange implements Exchange {
     static String URL_PRICE_CHANGE;
     static String URL_PING;
 
-    @ManyToMany(cascade = CascadeType.PERSIST)
+    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @Getter
     List<TimePeriod> changePeriods;
-    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST)
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @Getter
     Set<Limit> limits;
     int limitCode;
@@ -46,7 +46,7 @@ public abstract class BasicExchange implements Exchange {
     @Getter
     String name;
     @Getter
-    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST)
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     protected Set<CurrencyPair> pairs = new TreeSet<>();
     @Transient
     private Properties props;
