@@ -16,6 +16,7 @@ import ru.exrates.entities.exchanges.secondary.exceptions.ErrorCodeException;
 import ru.exrates.entities.exchanges.secondary.exceptions.LimitExceededException;
 
 import javax.persistence.*;
+import java.time.Duration;
 import java.util.*;
 
 @Entity @Inheritance(strategy = InheritanceType.SINGLE_TABLE) @DiscriminatorColumn(name = "EXCHANGE_TYPE")
@@ -105,10 +106,10 @@ public abstract class BasicExchange implements Exchange {
 
     abstract void task() throws RuntimeException;
 
-    abstract void currentPrice(CurrencyPair pair) throws
+    abstract void currentPrice(CurrencyPair pair, Duration timeout) throws
             JSONException, NullPointerException, LimitExceededException, ErrorCodeException, BanException;
 
-    abstract void priceChange(CurrencyPair pair) throws
+    abstract void priceChange(CurrencyPair pair, Duration timeout, Long startTime, Long endTime, Integer limit) throws
             JSONException, LimitExceededException, ErrorCodeException, BanException;
 
 

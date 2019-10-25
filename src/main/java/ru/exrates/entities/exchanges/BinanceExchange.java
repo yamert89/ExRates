@@ -6,17 +6,20 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Component;
+import ru.exrates.entities.Currency;
 import ru.exrates.entities.CurrencyPair;
 import ru.exrates.entities.TimePeriod;
 import ru.exrates.entities.exchanges.secondary.*;
 import ru.exrates.entities.exchanges.secondary.exceptions.BanException;
 import ru.exrates.entities.exchanges.secondary.exceptions.ErrorCodeException;
 import ru.exrates.entities.exchanges.secondary.exceptions.LimitExceededException;
+import ru.exrates.repos.DurationConverter;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 @Component
@@ -30,7 +33,7 @@ public class BinanceExchange extends BasicExchange {
         URL_ENDPOINT = "https://api.binance.com";
         URL_CURRENT_AVG_PRICE = "/api/v3/avgPrice";
         URL_INFO = "/api/v1/exchangeInfo";
-        URL_PRICE_CHANGE = "";
+        URL_PRICE_CHANGE = "/api/v1/klines?limit=1";
         URL_PING = "/api/v1/ping";
     }
 
@@ -47,7 +50,6 @@ public class BinanceExchange extends BasicExchange {
         CurrencyPair pair = null;
         for (CurrencyPair p : pairs) {
             try {
-
                 currentPrice(p);
                 priceChange(p);
 
@@ -73,24 +75,33 @@ public class BinanceExchange extends BasicExchange {
     }
 
     @Override
-    void currentPrice (CurrencyPair pair)
+    void currentPrice (CurrencyPair pair, Duration timeout)
             throws JSONException, NullPointerException, LimitExceededException, ErrorCodeException, BanException {
-        var entity = restTemplate.getForEntityImpl(URL_CURRENT_AVG_PRICE + "?symbol=" + pair.getSymbol(), JSONObject.class, LimitType.WEIGHT);
-        pair.setPrice(Double.parseDouble(entity.getBody().getString("price")));
+        if (Instant.now().isAfter(Instant.ofEpochMilli(pair.getUpdateTimes()[0] + timeout.toMillis()))) return;
+        var entity = new JSONObject(restTemplate.getForEntityImpl(URL_CURRENT_AVG_PRICE + "?symbol=" + pair.getSymbol(), String.class, LimitType.WEIGHT).getBody());
+        pair.setPrice(Double.parseDouble(entity.getString("price")));
 
+    }
+
+
+    private void priceChange (CurrencyPair pair, Duration timeout)
+            throws JSONException, LimitExceededException, ErrorCodeException, BanException {
+       priceChange(pair, timeout, null, null, 1);
     }
 
     @Override
-    void priceChange (CurrencyPair pair)
-            throws JSONException, LimitExceededException, ErrorCodeException, BanException {
+    void priceChange (CurrencyPair pair, Duration timeout, Long startTime, Long endTime, Integer limit)
+            throws JSONException, LimitExceededException, ErrorCodeException, BanException{
+        var uriVariables = new HashMap<String, String>(5);
+
         var change = pair.getPriceChange();
         for (TimePeriod per : changePeriods) {
-            var entity = restTemplate.getForEntityImpl(URL_PRICE_CHANGE, JSONArray.class, LimitType.WEIGHT);
+            var entity = new JSONArray(restTemplate.getForEntityImpl(URL_PRICE_CHANGE, String.class, LimitType.WEIGHT).getBody());
             var array = entity.getBody().getJSONArray(0);
             change.put(per, (array.getDouble(2) + array.getDouble(3)) / 2);
         }
-
     }
+
     @PostConstruct
     private void init(){
         logger.debug("Postconstruct binance");
