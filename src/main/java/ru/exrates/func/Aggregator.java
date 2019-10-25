@@ -80,6 +80,11 @@ public class Aggregator {
         return exchanges.get(exName);
     }
 
+    public Exchange getExchange(String exchange, String[] pairs) {
+
+        return null;
+    }
+
     public Set<CurrencyPair> getCurStat(String curName1, String curName2){
         var tempCur = new Currency(curName1);
         var tempCur2 = new Currency(curName2);
