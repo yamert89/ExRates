@@ -3,6 +3,7 @@ package ru.exrates.func;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,9 @@ import ru.exrates.entities.exchanges.BasicExchange;
 import ru.exrates.entities.exchanges.BinanceExchange;
 import ru.exrates.entities.exchanges.Exchange;
 import ru.exrates.entities.exchanges.secondary.Limit;
+import ru.exrates.entities.exchanges.secondary.exceptions.BanException;
+import ru.exrates.entities.exchanges.secondary.exceptions.ErrorCodeException;
+import ru.exrates.entities.exchanges.secondary.exceptions.LimitExceededException;
 import ru.exrates.repos.ExchangeService;
 
 import javax.annotation.PostConstruct;
@@ -22,7 +26,7 @@ import java.util.stream.IntStream;
 @Component
 public class Aggregator {
     private final static Logger logger = LogManager.getLogger(Aggregator.class);
-    private Map<String, Exchange> exchanges;
+    private Map<String, BasicExchange> exchanges;
     private Map<String, Class<? extends BasicExchange>> exchangeNames = new HashMap<>();
     private ExchangeService exchangeService;
     private ApplicationContext applicationContext;
@@ -76,13 +80,41 @@ public class Aggregator {
 
     //private Set<Currency> currencies = new HashSet<>();
 
-    public Exchange getExchange(String exName){
+    public BasicExchange getExchange(String exName){
         return exchanges.get(exName);
     }
 
-    public Exchange getExchange(String exchange, String[] pairs) {
+    public Exchange getExchange(String exchange, String[] pairsN, String period) {
+        var exch = getExchange(exchange);
+        var pairs = exch.getPairs();
+        var temp = new CurrencyPair();
+        for (String s : pairsN) {
+            temp.setSymbol(s);
+            if (!pairs.contains(temp)) exch.insertPair(exchangeService.findPair(s));
+        }
 
-        return null;
+        var reqPairs = new HashSet<>(pairs);
+
+        //todo - limit request pairs
+
+        var timePeriod = exch.getChangePeriods().stream().filter(
+                p -> p.getName().equals(period)).findFirst().get();
+        for (CurrencyPair reqPair : reqPairs) {
+            try {
+                exch.currentPrice(reqPair, timePeriod.getPeriod());
+                exch.priceChange(reqPair, timePeriod.getPeriod());
+            } catch (JSONException e){
+                logger.error("Json ex");
+            } catch (LimitExceededException e) {
+                logger.error(e.getMessage());
+            } catch (ErrorCodeException e) {
+                logger.error(e.getMessage());
+            } catch (BanException e) {
+                logger.error(e.getMessage());
+            }
+
+        }
+        return exch;
     }
 
     public Set<CurrencyPair> getCurStat(String curName1, String curName2){
@@ -93,7 +125,7 @@ public class Aggregator {
         return curs;
     }
 
-    //todo test    //todo check for seconds limit
+      //todo check for seconds limit
     public int calculatePairsSize(BasicExchange exchange){
         var tLimits = new LinkedList<Integer>();
         var ammountReqs = exchange.getChangePeriods().size() + 1;

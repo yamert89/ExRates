@@ -33,7 +33,7 @@ public class BinanceExchange extends BasicExchange {
         URL_ENDPOINT = "https://api.binance.com";
         URL_CURRENT_AVG_PRICE = "/api/v3/avgPrice";
         URL_INFO = "/api/v1/exchangeInfo";
-        URL_PRICE_CHANGE = "/api/v1/klines?limit=1";
+        URL_PRICE_CHANGE = "/api/v1/klines";
         URL_PING = "/api/v1/ping";
     }
 
@@ -50,8 +50,8 @@ public class BinanceExchange extends BasicExchange {
         CurrencyPair pair = null;
         for (CurrencyPair p : pairs) {
             try {
-                currentPrice(p);
-                priceChange(p);
+                currentPrice(p, updatePeriod);
+                priceChange(p, updatePeriod);
 
             } catch (JSONException e) {
                 logger.error("task JS ex", e);
@@ -75,29 +75,36 @@ public class BinanceExchange extends BasicExchange {
     }
 
     @Override
-    void currentPrice (CurrencyPair pair, Duration timeout)
-            throws JSONException, NullPointerException, LimitExceededException, ErrorCodeException, BanException {
+    public void currentPrice (CurrencyPair pair, Duration timeout)
+            throws JSONException, NullPointerException, LimitExceededException, ErrorCodeException, BanException { //todo timeout
         if (Instant.now().isAfter(Instant.ofEpochMilli(pair.getUpdateTimes()[0] + timeout.toMillis()))) return;
         var entity = new JSONObject(restTemplate.getForEntityImpl(URL_CURRENT_AVG_PRICE + "?symbol=" + pair.getSymbol(), String.class, LimitType.WEIGHT).getBody());
         pair.setPrice(Double.parseDouble(entity.getString("price")));
 
     }
 
-
-    private void priceChange (CurrencyPair pair, Duration timeout)
+    @Override
+    public void priceChange (CurrencyPair pair, Duration timeout)
             throws JSONException, LimitExceededException, ErrorCodeException, BanException {
-       priceChange(pair, timeout, null, null, 1);
+        var change = pair.getPriceChange();
+        var symbol = "?symbol=" + pair.getSymbol();
+        var period = "&interval=";
+        for (TimePeriod per : changePeriods) {
+            var entity = new JSONArray(restTemplate.getForEntityImpl(URL_PRICE_CHANGE +
+                    symbol + period + per.getName() + "&limit=1" , String.class, LimitType.WEIGHT).getBody());
+            var array = entity.getJSONArray(0);
+            change.put(per, (array.getDouble(2) + array.getDouble(3)) / 2);
+        }
     }
 
     @Override
-    void priceChange (CurrencyPair pair, Duration timeout, Long startTime, Long endTime, Integer limit)
+    public void priceChange (CurrencyPair pair, Duration timeout, Map<String, String> uriVariables) //todo limit > 1 logic
             throws JSONException, LimitExceededException, ErrorCodeException, BanException{
-        var uriVariables = new HashMap<String, String>(5);
-
         var change = pair.getPriceChange();
         for (TimePeriod per : changePeriods) {
-            var entity = new JSONArray(restTemplate.getForEntityImpl(URL_PRICE_CHANGE, String.class, LimitType.WEIGHT).getBody());
-            var array = entity.getBody().getJSONArray(0);
+            var entity = new JSONArray(restTemplate.getForEntityImpl(
+                    URL_PRICE_CHANGE, String.class, uriVariables, LimitType.WEIGHT).getBody());
+            var array = entity.getJSONArray(0);
             change.put(per, (array.getDouble(2) + array.getDouble(3)) / 2);
         }
     }

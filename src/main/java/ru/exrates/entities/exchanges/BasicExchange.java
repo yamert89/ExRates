@@ -38,19 +38,27 @@ public abstract class BasicExchange implements Exchange {
     @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @Getter
     List<TimePeriod> changePeriods;
+
     @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @Getter
     Set<Limit> limits;
+
     int limitCode;
     int banCode;
     int sleepValueSeconds = 30;
+    Duration updatePeriod;
+
     @Getter
     String name;
-    @Getter
+
+
     @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @Getter
     protected Set<CurrencyPair> pairs = new TreeSet<>();
+
     @Transient
     private Properties props;
+
     @Transient
     RestTemplateImpl restTemplate;
 
@@ -84,7 +92,8 @@ public abstract class BasicExchange implements Exchange {
             }
         };
         Timer timer = new Timer();
-        timer.schedule(task, 10000000/*, props.getTimerPeriod()*/); //todo value
+        updatePeriod = Duration.ofMillis(props.getTimerPeriod());
+        timer.schedule(task, 10000000, props.getTimerPeriod()); //todo value
         timer.cancel();
     }
 
@@ -106,10 +115,13 @@ public abstract class BasicExchange implements Exchange {
 
     abstract void task() throws RuntimeException;
 
-    abstract void currentPrice(CurrencyPair pair, Duration timeout) throws
+    public abstract void currentPrice(CurrencyPair pair, Duration timeout) throws
             JSONException, NullPointerException, LimitExceededException, ErrorCodeException, BanException;
 
-    abstract void priceChange(CurrencyPair pair, Duration timeout, Long startTime, Long endTime, Integer limit) throws
+    public abstract void priceChange(CurrencyPair pair, Duration timeout, Map<String, String> uriVariables) throws
+            JSONException, LimitExceededException, ErrorCodeException, BanException;
+
+    public abstract void priceChange(CurrencyPair pair, Duration timeout) throws
             JSONException, LimitExceededException, ErrorCodeException, BanException;
 
 

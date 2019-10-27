@@ -35,7 +35,7 @@ public class RestInfo {
     }
 
     @GetMapping("/rest/exchange")
-    public Exchange getExchange(@RequestBody String payload){ //{exchange : "binance", pairs : ["btcusd", "etcbtc"]}
+    public Exchange getExchange(@RequestBody String payload){ //{exchange : "binance", timeout: "3m", pairs : ["btcusd", "etcbtc"]}
         JsonTemplates.ExchangePayload exchangePayload = null;
         try {
             exchangePayload = objectMapper.readValue(payload, JsonTemplates.ExchangePayload.class);

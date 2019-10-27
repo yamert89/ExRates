@@ -23,6 +23,7 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
 
     private Long version;
 
+    @Setter
     @Column(unique = true, nullable = false)
     private String symbol;
 
@@ -56,6 +57,10 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
         this.symbol = symbol;
     }
 
+    public CurrencyPair(){
+        lastUse = Instant.now();
+    }
+
     public String getSymbol() {
         return symbol;
     }
@@ -75,13 +80,12 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CurrencyPair pair = (CurrencyPair) o;
-        return id == pair.id &&
-                symbol.equals(pair.symbol);
+        return symbol.equals(pair.symbol);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, symbol);
+        return Objects.hash(symbol);
     }
 
     public double getPrice() {

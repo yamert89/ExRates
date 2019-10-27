@@ -8,23 +8,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.exrates.entities.CurrencyPair;
 import ru.exrates.entities.exchanges.BasicExchange;
-import ru.exrates.entities.exchanges.Exchange;
-import ru.exrates.repos.daos.CurrensyRepository;
+import ru.exrates.repos.daos.CurrencyRepository;
 import ru.exrates.repos.daos.ExchangeRepository;
 
 
 import javax.persistence.NoResultException;
-import java.util.Set;
 
 @Service
 @Transactional
 public class ExchangeService {
 
     private ExchangeRepository exchangeRepository;
-    private CurrensyRepository currensyRepository;
+    private CurrencyRepository currencyRepository;
     @Autowired
-    public void setCurrensyRepository(CurrensyRepository currensyRepository) {
-        this.currensyRepository = currensyRepository;
+    public void setCurrencyRepository(CurrencyRepository currencyRepository) {
+        this.currencyRepository = currencyRepository;
     }
 
     @Autowired
@@ -56,7 +54,12 @@ public class ExchangeService {
 
     @Transactional
     public Page<CurrencyPair> fillPairs(int amount){
-        return currensyRepository.findAll(PageRequest.of(1, amount));
+        return currencyRepository.findAll(PageRequest.of(1, amount));
+    }
+
+    @Transactional
+    public CurrencyPair findPair(String symbol){
+        return currencyRepository.findBySymbol(symbol);
     }
 
 
