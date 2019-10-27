@@ -77,7 +77,7 @@ public class BinanceExchange extends BasicExchange {
     @Override
     public void currentPrice (CurrencyPair pair, Duration timeout)
             throws JSONException, NullPointerException, LimitExceededException, ErrorCodeException, BanException { //todo timeout
-        if (Instant.now().isAfter(Instant.ofEpochMilli(pair.getUpdateTimes()[0] + timeout.toMillis()))) return;
+        if (!dataElapsed(pair, timeout)) return;
         var entity = new JSONObject(restTemplate.getForEntityImpl(URL_CURRENT_AVG_PRICE + "?symbol=" + pair.getSymbol(), String.class, LimitType.WEIGHT).getBody());
         pair.setPrice(Double.parseDouble(entity.getString("price")));
 
@@ -86,6 +86,7 @@ public class BinanceExchange extends BasicExchange {
     @Override
     public void priceChange (CurrencyPair pair, Duration timeout)
             throws JSONException, LimitExceededException, ErrorCodeException, BanException {
+        if (!dataElapsed(pair, timeout)) return;
         var change = pair.getPriceChange();
         var symbol = "?symbol=" + pair.getSymbol();
         var period = "&interval=";
@@ -100,6 +101,7 @@ public class BinanceExchange extends BasicExchange {
     @Override
     public void priceChange (CurrencyPair pair, Duration timeout, Map<String, String> uriVariables) //todo limit > 1 logic
             throws JSONException, LimitExceededException, ErrorCodeException, BanException{
+        if (!dataElapsed(pair, timeout)) return;
         var change = pair.getPriceChange();
         for (TimePeriod per : changePeriods) {
             var entity = new JSONArray(restTemplate.getForEntityImpl(

@@ -14,9 +14,11 @@ import ru.exrates.entities.exchanges.secondary.*;
 import ru.exrates.entities.exchanges.secondary.exceptions.BanException;
 import ru.exrates.entities.exchanges.secondary.exceptions.ErrorCodeException;
 import ru.exrates.entities.exchanges.secondary.exceptions.LimitExceededException;
+import ru.exrates.repos.DurationConverter;
 
 import javax.persistence.*;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 @Entity @Inheritance(strategy = InheritanceType.SINGLE_TABLE) @DiscriminatorColumn(name = "EXCHANGE_TYPE")
@@ -112,6 +114,10 @@ public abstract class BasicExchange implements Exchange {
         return pair[0];
     }
 
+    boolean dataElapsed(CurrencyPair pair, Duration timeout){ //todo test
+        return !Instant.now().isAfter(Instant.ofEpochMilli(pair.getUpdateTimes()[0] + timeout.toMillis()));
+    }
+
 
     abstract void task() throws RuntimeException;
 
@@ -123,6 +129,7 @@ public abstract class BasicExchange implements Exchange {
 
     public abstract void priceChange(CurrencyPair pair, Duration timeout) throws
             JSONException, LimitExceededException, ErrorCodeException, BanException;
+
 
 
 }
