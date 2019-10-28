@@ -17,6 +17,7 @@ import ru.exrates.entities.exchanges.secondary.exceptions.ErrorCodeException;
 import ru.exrates.entities.exchanges.secondary.exceptions.LimitExceededException;
 import ru.exrates.repos.DurationConverter;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.*;
 import java.time.Duration;
 import java.time.Instant;
@@ -78,6 +79,11 @@ public abstract class BasicExchange implements Exchange {
         // init pairs
 
 
+
+    }
+
+    @PostConstruct
+    private void init(){
         TimerTask task = new TimerTask() {
             @Override
             public void run() {

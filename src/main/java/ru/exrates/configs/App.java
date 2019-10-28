@@ -32,21 +32,16 @@ public class App {
     }
 
     @Bean
-    @Primary
-    @ConfigurationProperties("app.datasource.mysql.configuration")
-    public DataSource mysqlDataSource(){
-        var builder = DataSourceBuilder.create();
-        builder.driverClassName(""
+    @ConfigurationProperties("app.datasource.second")
+    public DataSourceProperties secondDataSourceProperties(){
+        return new DataSourceProperties();
     }
 
 
 
 
-    /*@Bean
-    @ConfigurationProperties("app.datasource")
-    public DataSource dataSource(){
-        return DataSourceBuilder.create().build();
-    }*/
+
+
 
 
     
