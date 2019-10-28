@@ -10,6 +10,7 @@ public class JsonTemplates {
     @Getter @Setter
     public static class ExchangePayload{
         private String exchange;
+        private String timeout;
         private String[] pairs;
     }
 }

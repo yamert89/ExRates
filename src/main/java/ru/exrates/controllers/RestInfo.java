@@ -34,8 +34,13 @@ public class RestInfo {
         this.aggregator = aggregator;
     }
 
+    /*
+        {exchange : "binance", timeout: "3m", pairs : ["btcusd", "etcbtc"]}
+        //todo pairs - list of favorite pairs in bd for each user
+     */
+
     @GetMapping("/rest/exchange")
-    public Exchange getExchange(@RequestBody String payload){ //{exchange : "binance", timeout: "3m", pairs : ["btcusd", "etcbtc"]}
+    public Exchange getExchange(@RequestBody String payload){
         JsonTemplates.ExchangePayload exchangePayload = null;
         try {
             exchangePayload = objectMapper.readValue(payload, JsonTemplates.ExchangePayload.class);
@@ -45,8 +50,9 @@ public class RestInfo {
             return null;
         }
         return exchangePayload.getPairs().length > 0 ?
-                aggregator.getExchange(exchangePayload.getExchange(), exchangePayload.getPairs()) :
+                aggregator.getExchange(exchangePayload.getExchange(), exchangePayload.getPairs(), exchangePayload.getTimeout()) :
                 aggregator.getExchange(exchangePayload.getExchange());
+
 
     }
 

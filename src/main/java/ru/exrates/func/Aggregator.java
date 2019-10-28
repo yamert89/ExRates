@@ -82,7 +82,7 @@ public class Aggregator {
 
     public BasicExchange getExchange(String exName){
         return exchanges.get(exName);
-    }
+    } //todo needs update?
 
     public Exchange getExchange(String exchange, String[] pairsN, String period) {
         var exch = getExchange(exchange);

@@ -1,5 +1,6 @@
 package ru.exrates.entities.exchanges;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
@@ -31,11 +32,8 @@ public abstract class BasicExchange implements Exchange {
     @Version
     private long version;
     private final static Logger logger = LogManager.getLogger(BasicExchange.class);
-    static String URL_ENDPOINT;
-    static String URL_CURRENT_AVG_PRICE;
-    static String URL_INFO;
-    static String URL_PRICE_CHANGE;
-    static String URL_PING;
+
+    static String URL_ENDPOINT, URL_CURRENT_AVG_PRICE, URL_INFO, URL_PRICE_CHANGE, URL_PING;
 
     @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @Getter
@@ -45,9 +43,8 @@ public abstract class BasicExchange implements Exchange {
     @Getter
     Set<Limit> limits;
 
-    int limitCode;
-    int banCode;
-    int sleepValueSeconds = 30;
+    @JsonIgnore int limitCode, banCode, sleepValueSeconds = 30;
+    @JsonIgnore
     Duration updatePeriod;
 
     @Getter

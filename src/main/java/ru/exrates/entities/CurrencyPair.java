@@ -14,7 +14,6 @@ import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
 @Entity
-@NoArgsConstructor
 public class CurrencyPair implements Comparable<CurrencyPair>{
     @Id @GeneratedValue
     @JsonIgnore
