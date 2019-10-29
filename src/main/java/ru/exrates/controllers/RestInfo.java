@@ -33,7 +33,7 @@ public class RestInfo {
     }
 
     /*
-        {exchange : "binance", timeout: "3m", pairs : ["btcusd", "etcbtc"]}
+        {"exchange" : "binance", "timeout": "3m", "pairs" : ["btcusd", "etcbtc"]}
         //todo pairs - list of favorite pairs in bd for each user
      */
 

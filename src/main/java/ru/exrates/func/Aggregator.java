@@ -90,7 +90,7 @@ public class Aggregator {
         var temp = new CurrencyPair();
         for (String s : pairsN) {
             temp.setSymbol(s);
-            if (!pairs.contains(temp)) exch.insertPair(exchangeService.findPair(s));
+            if (!pairs.contains(temp)) exch.insertPair(exchangeService.findPair(s).orElseThrow());//NPE
         }
 
         var reqPairs = new HashSet<>(pairs);

@@ -40,6 +40,7 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @Getter
+    @JsonIgnore
     private BasicExchange exchange;
 
     /*

@@ -13,6 +13,7 @@ import ru.exrates.repos.daos.ExchangeRepository;
 
 
 import javax.persistence.NoResultException;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -58,7 +59,7 @@ public class ExchangeService {
     }
 
     @Transactional
-    public CurrencyPair findPair(String symbol){
+    public Optional<CurrencyPair> findPair(String symbol){
         return currencyRepository.findBySymbol(symbol);
     }
 
