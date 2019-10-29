@@ -30,8 +30,7 @@ public abstract class BasicExchange implements Exchange {
     @Getter
     private Integer id;
     @Getter @Setter
-    @Version
-    private long version;
+    boolean temporary = true;
     private final static Logger logger = LogManager.getLogger(BasicExchange.class);
 
     static String URL_ENDPOINT, URL_CURRENT_AVG_PRICE, URL_INFO, URL_PRICE_CHANGE, URL_PING;
@@ -98,7 +97,7 @@ public abstract class BasicExchange implements Exchange {
         };
         Timer timer = new Timer();
         updatePeriod = Duration.ofMillis(props.getTimerPeriod());
-        timer.schedule(task, 10000000, props.getTimerPeriod()); //todo value
+        timer.schedule(task, 20000, props.getTimerPeriod()); //todo value
         timer.cancel();
     }
 

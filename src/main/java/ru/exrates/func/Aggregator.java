@@ -121,11 +121,11 @@ public class Aggregator {
         return exch;
     }
 
-    public Set<CurrencyPair> getCurStat(String curName1, String curName2){
+    public Map<String, CurrencyPair> getCurStat(String curName1, String curName2){
         var tempCur = new Currency(curName1);
         var tempCur2 = new Currency(curName2);
-        var curs = new HashSet<CurrencyPair>();
-        exchanges.forEach((key, val) -> curs.add(val.getPair(tempCur, tempCur2)));
+        var curs = new HashMap<String, CurrencyPair>();
+        exchanges.forEach((key, val) -> curs.put(key, val.getPair(tempCur, tempCur2)));
         return curs;
     }
 

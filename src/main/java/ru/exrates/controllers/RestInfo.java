@@ -4,16 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.exrates.entities.CurrencyPair;
 import ru.exrates.entities.exchanges.Exchange;
 import ru.exrates.func.Aggregator;
 import ru.exrates.utils.JsonTemplates;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -39,7 +37,7 @@ public class RestInfo {
         //todo pairs - list of favorite pairs in bd for each user
      */
 
-    @GetMapping("/rest/exchange")
+    @PostMapping("/rest/exchange")
     public Exchange getExchange(@RequestBody String payload){
         JsonTemplates.ExchangePayload exchangePayload = null;
         try {
@@ -57,7 +55,7 @@ public class RestInfo {
     }
 
     @GetMapping("/rest/pair")
-    public Set<CurrencyPair> pair(@RequestParam String c1, @RequestParam String c2){
+    public Map<String, CurrencyPair> pair(@RequestParam String c1, @RequestParam String c2){
         return aggregator.getCurStat(c1, c2);
     }
 

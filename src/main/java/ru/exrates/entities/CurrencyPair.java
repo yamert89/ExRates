@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
+import ru.exrates.entities.exchanges.BasicExchange;
 import ru.exrates.entities.exchanges.secondary.collections.UpdateListenerMap;
 
 import javax.persistence.*;
@@ -19,8 +20,6 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
     @JsonIgnore
     @Getter
     private int id;
-
-    private Long version;
 
     @Setter
     @Column(unique = true, nullable = false)
@@ -39,6 +38,10 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
     @Getter @Setter
     private Instant lastUse = Instant.now();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Getter
+    private BasicExchange exchange;
+
     /*
         indexes:
         0 - price
@@ -52,8 +55,9 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
         symbol = currency1.getSymbol() + currency2.getSymbol();
     }
 
-    public CurrencyPair(String symbol) {
+    public CurrencyPair(String symbol, BasicExchange exchange) {
         this.symbol = symbol;
+        this.exchange = exchange;
     }
 
     public CurrencyPair(){

@@ -22,7 +22,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-@Component
+
 @Entity @DiscriminatorValue("Binance")
 public class BinanceExchange extends BasicExchange {
     private final static Logger logger = LogManager.getLogger(BinanceExchange.class);
@@ -113,8 +113,8 @@ public class BinanceExchange extends BasicExchange {
 
     @PostConstruct
     private void init(){
+        if (!temporary) return;
         logger.debug("Postconstruct binance");
-        if (getVersion() != 0) return;
         name = "binance";
         limitCode = 429;
         banCode = 418;
@@ -165,8 +165,9 @@ public class BinanceExchange extends BasicExchange {
 
             symbols = entity.getJSONArray("symbols");
             for (int i = 0; i < symbols.length(); i++) {
-                pairs.add(new CurrencyPair(symbols.getJSONObject(i).getString("symbol")));
+                pairs.add(new CurrencyPair(symbols.getJSONObject(i).getString("symbol"), this));
             }
+            temporary = false;
             logger.debug("exchange initialized with " + pairs.size() + " pairs");
         } catch (JSONException e) {
             logger.error("task JSON E", e);
