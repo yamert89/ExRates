@@ -98,7 +98,7 @@ public class Aggregator {
         //todo - limit request pairs
 
         var timePeriod = exch.getChangePeriods().stream().filter(
-                p -> p.getName().equals(period)).findFirst().get();
+                p -> p.getName().equals(period)).findFirst().orElseThrow();
         for (CurrencyPair reqPair : reqPairs) {
             try {
                 exch.currentPrice(reqPair, timePeriod.getPeriod());
@@ -111,6 +111,10 @@ public class Aggregator {
                 logger.error(e.getMessage());
             } catch (BanException e) {
                 logger.error(e.getMessage());
+            } catch (NoSuchElementException e){
+                logger.error(e);
+            } catch (Exception e){
+                logger.error("unchecked exc", e);
             }
 
         }

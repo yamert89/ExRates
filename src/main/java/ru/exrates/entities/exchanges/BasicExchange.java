@@ -117,8 +117,8 @@ public abstract class BasicExchange implements Exchange {
         return pair[0];
     }
 
-    boolean dataElapsed(CurrencyPair pair, Duration timeout){ //todo test
-        return !Instant.now().isAfter(Instant.ofEpochMilli(pair.getUpdateTimes()[0] + timeout.toMillis()));
+    public boolean dataElapsed(CurrencyPair pair, Duration timeout){
+        return Instant.now().isAfter(Instant.ofEpochMilli(pair.getUpdateTimes()[0] + timeout.toMillis()));
     }
 
 

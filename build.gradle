@@ -31,10 +31,11 @@ dependencies {
     implementation 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'mysql:mysql-connector-java'
-    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.8'
+    runtimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.2.8'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.1.0'
+    testRuntimeOnly group: 'org.postgresql', name: 'postgresql', version: '42.2.8'
 
 }
