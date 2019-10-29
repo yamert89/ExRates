@@ -25,13 +25,13 @@ public class App {
     public RestTemplate restTemplate(RestTemplateBuilder builder){ return builder.build();}
 
     @Bean
-    @Primary
     @ConfigurationProperties("app.datasource.first")
     public DataSourceProperties firstDataSourceProperties(){
         return new DataSourceProperties();
     }
 
     @Bean
+    @Primary
     @ConfigurationProperties("app.datasource.second")
     public DataSourceProperties secondDataSourceProperties(){
         return new DataSourceProperties();

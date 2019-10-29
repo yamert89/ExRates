@@ -8,10 +8,10 @@ import org.springframework.stereotype.Component;
 @Component
 @PropertySource("classpath:application.properties")
 public class Properties {
-    @Value("${timer}")
+    @Value("${app.timer}")
     private String timerPeriod; //todo min period - premium function
 
-    @Value("${pairs.size}")
+    @Value("${app.pairs.size}")
     private String maxSize;
 
     public long getTimerPeriod() {
