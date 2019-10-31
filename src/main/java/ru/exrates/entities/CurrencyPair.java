@@ -27,12 +27,12 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
 
     private double price;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "PERIOD")
     @Column(name = "VALUE")
     private Map<TimePeriod, Double> priceChange = new UpdateListenerMap<>(this);
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private Collection<Double> priceHistory = new ArrayBlockingQueue<>(20, true);
 
     @Getter @Setter

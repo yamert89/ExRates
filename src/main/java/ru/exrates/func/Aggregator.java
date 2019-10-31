@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 import ru.exrates.entities.Currency;
@@ -30,10 +31,16 @@ public class Aggregator {
     private Map<String, Class<? extends BasicExchange>> exchangeNames = new HashMap<>();
     private ExchangeService exchangeService;
     private ApplicationContext applicationContext;
+    private GenericApplicationContext genericApplicationContext;
 
     {
-        exchangeNames.put("binance", BinanceExchange.class);
+        exchangeNames.put("binanceExchange", BinanceExchange.class);
     }
+    @Autowired
+    public void setGenericApplicationContext(GenericApplicationContext genericApplicationContext) {
+        this.genericApplicationContext = genericApplicationContext;
+    }
+
     @Autowired
     public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
@@ -62,7 +69,6 @@ public class Aggregator {
                     var ob = claz.getConstructor().newInstance();
                     exchange = set.getValue().cast(ob);*/
                     exchange = exchangeService.persist(exchange);
-                    exchanges.put(set.getKey(), exchange);
                     pairsSize = calculatePairsSize(exchange);
                     var pairs = new TreeSet<>(exchange.getPairs());
                     while (pairs.size() > pairsSize) pairs.pollLast();
@@ -73,8 +79,19 @@ public class Aggregator {
                 }
             }else {
                 pairsSize = calculatePairsSize(exchange);
-                exchangeService.fillPairs(pairsSize);
+                var page = exchangeService.fillPairs(pairsSize);
+                exchange.getPairs().clear();
+                exchange.getPairs().addAll(page.getContent());
             }
+            var finalExchange = exchange;
+            Class clazz = set.getValue() == BinanceExchange.class ? BinanceExchange.class : BinanceExchange.class;
+            genericApplicationContext.removeBeanDefinition(set.getKey());
+            genericApplicationContext.registerBean(clazz, () -> finalExchange);
+            //genericApplicationContext.refresh();
+
+            Arrays.stream(genericApplicationContext.getBeanDefinitionNames()).forEach(System.out::println);
+            exchange = genericApplicationContext.getBean(set.getValue());
+            exchanges.put(set.getKey(), exchange);
         }
     }
 
@@ -90,7 +107,11 @@ public class Aggregator {
         var temp = new CurrencyPair();
         for (String s : pairsN) {
             temp.setSymbol(s);
-            if (!pairs.contains(temp)) exch.insertPair(exchangeService.findPair(s).orElseThrow());//NPE
+            try {
+                if (!pairs.contains(temp)) exch.insertPair(exchangeService.findPair(s).orElseThrow());//NPE
+            }catch (NullPointerException e){
+                logger.error(String.format("Pair %1$s not found in %2$s", s, exch.getName()));
+            }
         }
 
         var reqPairs = new HashSet<>(pairs);
@@ -114,7 +135,7 @@ public class Aggregator {
             } catch (NoSuchElementException e){
                 logger.error(e);
             } catch (Exception e){
-                logger.error("unchecked exc", e);
+                logger.error("unknown exc", e);
             }
 
         }

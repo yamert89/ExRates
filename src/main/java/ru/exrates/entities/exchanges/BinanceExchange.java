@@ -23,7 +23,7 @@ import java.time.Instant;
 import java.util.*;
 
 
-@Entity @DiscriminatorValue("Binance")
+@Entity @DiscriminatorValue("binance")
 public class BinanceExchange extends BasicExchange {
     private final static Logger logger = LogManager.getLogger(BinanceExchange.class);
 
@@ -115,7 +115,7 @@ public class BinanceExchange extends BasicExchange {
     private void init(){
         if (!temporary) return;
         logger.debug("Postconstruct binance");
-        name = "binance";
+        name = "binanceExchange";
         limitCode = 429;
         banCode = 418;
 

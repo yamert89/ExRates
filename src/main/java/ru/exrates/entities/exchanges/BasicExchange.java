@@ -132,6 +132,21 @@ public abstract class BasicExchange implements Exchange {
     public abstract void priceChange(CurrencyPair pair, Duration timeout) throws
             JSONException, LimitExceededException, ErrorCodeException, BanException;
 
-
-
+    @Override
+    public String toString() {
+        return "BasicExchange{" +
+                "id=" + id +
+                ", temporary=" + temporary +
+                ", changePeriods=" + changePeriods +
+                ", limits=" + limits +
+                ", limitCode=" + limitCode +
+                ", banCode=" + banCode +
+                ", sleepValueSeconds=" + sleepValueSeconds +
+                ", updatePeriod=" + updatePeriod +
+                ", name='" + name + '\'' +
+                ", pairs=" + pairs +
+                ", props=" + props +
+                ", restTemplate=" + restTemplate +
+                '}';
+    }
 }
