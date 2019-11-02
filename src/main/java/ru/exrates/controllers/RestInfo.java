@@ -33,7 +33,7 @@ public class RestInfo {
     }
 
     /*
-        {"exchange" : "binance", "timeout": "3m", "pairs" : ["btcusd", "etcbtc"]}
+        {"exchange" : "binanceExchange", "timeout": "3m", "pairs" : ["btcusd", "etcbtc"]}
         //todo pairs - list of favorite pairs in bd for each user
      */
 
@@ -55,8 +55,9 @@ public class RestInfo {
     }
 
     @GetMapping("/rest/pair")
-    public Map<String, CurrencyPair> pair(@RequestParam String c1, @RequestParam String c2){
-        return aggregator.getCurStat(c1, c2);
+    public Map<String, CurrencyPair> pair(@RequestParam(required = false) String c1, @RequestParam(required = false) String c2,
+                                          @RequestParam(required = false) String pname){
+        return pname == null ? aggregator.getCurStat(c1, c2) : aggregator.getCurStat(pname);
     }
 
 }

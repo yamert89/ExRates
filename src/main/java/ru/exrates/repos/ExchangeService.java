@@ -59,8 +59,8 @@ public class ExchangeService {
     }
 
     @Transactional
-    public Optional<CurrencyPair> findPair(String symbol){
-        return currencyRepository.findBySymbol(symbol);
+    public Optional<CurrencyPair> findPair(String symbol, BasicExchange exchange){
+        return currencyRepository.findBySymbolAndExchange(symbol, exchange);
     }
 
 

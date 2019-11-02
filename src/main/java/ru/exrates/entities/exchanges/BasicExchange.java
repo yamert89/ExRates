@@ -41,6 +41,7 @@ public abstract class BasicExchange implements Exchange {
 
     @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @Getter
+    @JsonIgnore
     Set<Limit> limits;
 
     @JsonIgnore int limitCode, banCode, sleepValueSeconds = 30;
@@ -114,6 +115,16 @@ public abstract class BasicExchange implements Exchange {
             if (el.getSymbol().equals(c1.getSymbol() + c2.getSymbol())) pair[0] = el;
         });
         return pair[0];
+    }
+
+    @Override
+    public CurrencyPair getPair(String pairName){
+        final CurrencyPair[] p = {null};
+        pairs.spliterator().forEachRemaining(el ->  {
+            if (el.getSymbol().equals(pairName)) p[0] = el;
+        });
+        return p[0];
+
     }
 
     public boolean dataElapsed(CurrencyPair pair, Duration timeout){

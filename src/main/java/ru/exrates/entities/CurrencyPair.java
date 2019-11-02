@@ -65,6 +65,10 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
         lastUse = Instant.now();
     }
 
+    public CurrencyPair(String pname) {
+        symbol = pname;
+    }
+
     public String getSymbol() {
         return symbol;
     }

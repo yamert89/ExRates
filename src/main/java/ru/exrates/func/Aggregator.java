@@ -85,8 +85,8 @@ public class Aggregator {
             }
             var finalExchange = exchange;
             Class clazz = set.getValue() == BinanceExchange.class ? BinanceExchange.class : BinanceExchange.class;
-            genericApplicationContext.removeBeanDefinition(set.getKey());
-            genericApplicationContext.registerBean(clazz, () -> finalExchange);
+            //genericApplicationContext.removeBeanDefinition(set.getKey());
+            genericApplicationContext.registerBean(clazz, () -> finalExchange, (def) -> def.setPrimary(true));
             //genericApplicationContext.refresh();
 
             Arrays.stream(genericApplicationContext.getBeanDefinitionNames()).forEach(System.out::println);
@@ -103,12 +103,17 @@ public class Aggregator {
 
     public Exchange getExchange(String exchange, String[] pairsN, String period) {
         var exch = getExchange(exchange);
+        if (exch == null) {
+            logger.error("Exchange " + exchange + " not found");
+            return null;
+        }
+
         var pairs = exch.getPairs();
         var temp = new CurrencyPair();
         for (String s : pairsN) {
             temp.setSymbol(s);
             try {
-                if (!pairs.contains(temp)) exch.insertPair(exchangeService.findPair(s).orElseThrow());//NPE
+                if (!pairs.contains(temp)) exch.insertPair(exchangeService.findPair(s, exch).orElseThrow());//NPE
             }catch (NullPointerException e){
                 logger.error(String.format("Pair %1$s not found in %2$s", s, exch.getName()));
             }
@@ -145,10 +150,23 @@ public class Aggregator {
     public Map<String, CurrencyPair> getCurStat(String curName1, String curName2){
         var tempCur = new Currency(curName1);
         var tempCur2 = new Currency(curName2);
+        return getCurStat(tempCur.getSymbol() + tempCur2.getSymbol());
+    }
+
+    public Map<String, CurrencyPair> getCurStat(String pname) {
         var curs = new HashMap<String, CurrencyPair>();
-        exchanges.forEach((key, val) -> curs.put(key, val.getPair(tempCur, tempCur2)));
+        exchanges.forEach((key, val) -> {
+            var p = val.getPair(pname);
+            Optional<CurrencyPair> pair = Optional.empty();
+            if (p == null) pair = exchangeService.findPair(pname, val);
+            pair.ifPresent(currencyPair -> {
+                curs.put(key, currencyPair);
+                val.insertPair(currencyPair);
+            });
+        });
         return curs;
     }
+
 
       //todo check for seconds limit
     public int calculatePairsSize(BasicExchange exchange){
