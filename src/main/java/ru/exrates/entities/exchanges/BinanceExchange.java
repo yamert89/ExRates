@@ -46,7 +46,7 @@ public class BinanceExchange extends BasicExchange {
         if (getId() == null) return;
         var resp = restTemplate.getForEntity(URL_ENDPOINT + URL_PING, String.class).getStatusCode().value();
         if (resp != 200) return;
-        logger.debug("binance task!!");
+        logger.debug("binance task started....");
         CurrencyPair pair = null;
         for (CurrencyPair p : pairs) {
             try {
@@ -70,6 +70,8 @@ public class BinanceExchange extends BasicExchange {
             } catch (BanException e){
                 logger.error(e.getMessage());
                 throw new RuntimeException("You are banned from " + this.name);
+            } catch (Exception e){
+                throw new RuntimeException("Unknown error", e);
             }
         }
     }
@@ -78,8 +80,13 @@ public class BinanceExchange extends BasicExchange {
     public void currentPrice (CurrencyPair pair, Duration timeout)
             throws JSONException, NullPointerException, LimitExceededException, ErrorCodeException, BanException { //todo timeout
         if (!dataElapsed(pair, timeout)) return;
-        var entity = new JSONObject(restTemplate.getForEntityImpl(URL_CURRENT_AVG_PRICE + "?symbol=" + pair.getSymbol(), String.class, LimitType.WEIGHT).getBody());
-        pair.setPrice(Double.parseDouble(entity.getString("price")));
+        //var variables = new HashMap<String, String>();
+        //variables.put("symbol", pair.getSymbol());
+        var entity = new JSONObject(restTemplate.getForEntityImpl(URL_ENDPOINT + URL_CURRENT_AVG_PRICE + "?symbol=" + pair.getSymbol(), String.class, LimitType.WEIGHT).getBody());
+        var price = Double.parseDouble(entity.getString("price"));
+        pair.setPrice(price);
+        logger.debug(String.format("Price updated on %1$s pair | = %2$s", pair.getSymbol(), price));
+
 
     }
 
@@ -91,10 +98,12 @@ public class BinanceExchange extends BasicExchange {
         var symbol = "?symbol=" + pair.getSymbol();
         var period = "&interval=";
         for (TimePeriod per : changePeriods) {
-            var entity = new JSONArray(restTemplate.getForEntityImpl(URL_PRICE_CHANGE +
+            var entity = new JSONArray(restTemplate.getForEntityImpl(URL_ENDPOINT + URL_PRICE_CHANGE +
                     symbol + period + per.getName() + "&limit=1" , String.class, LimitType.WEIGHT).getBody());
             var array = entity.getJSONArray(0);
-            change.put(per, (array.getDouble(2) + array.getDouble(3)) / 2);
+            var changeVol = (array.getDouble(2) + array.getDouble(3)) / 2;
+            change.put(per, changeVol);
+            logger.debug(String.format("Change period updated on %1$s pair, interval = %2$s | change = %3$s", pair.getSymbol(), per.getName(), changeVol));
         }
     }
 
@@ -113,6 +122,8 @@ public class BinanceExchange extends BasicExchange {
 
     @PostConstruct
     private void init(){
+        restTemplate.setLimitCode(limitCode);
+        restTemplate.setBanCode(banCode);
         if (!temporary) return;
         logger.debug("Postconstruct binance");
         name = "binanceExchange";
@@ -138,8 +149,7 @@ public class BinanceExchange extends BasicExchange {
                 new TimePeriod(Duration.ofDays(7), "1w"),
                 new TimePeriod(Duration.ofDays(30), "1M"));
 
-        restTemplate.setLimitCode(limitCode);
-        restTemplate.setBanCode(banCode);
+
         try {
             var entity = new JSONObject(restTemplate.getForEntityImpl(URL_ENDPOINT + URL_INFO, String.class, LimitType.WEIGHT)
                     .getBody());

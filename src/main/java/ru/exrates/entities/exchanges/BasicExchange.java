@@ -84,6 +84,7 @@ public abstract class BasicExchange implements Exchange {
 
     @PostConstruct
     private void init(){
+        logger.debug("Basic postconstruct run");
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
@@ -92,14 +93,14 @@ public abstract class BasicExchange implements Exchange {
                 }catch (RuntimeException e){
                     this.cancel();
                     logger.error(e);
-                    logger.debug("task cancelled because you are banned");
+                    logger.debug(e.getMessage());
                 }
             }
         };
         Timer timer = new Timer();
         updatePeriod = Duration.ofMillis(props.getTimerPeriod());
-        timer.schedule(task, 20000, props.getTimerPeriod()); //todo value
-        timer.cancel();
+        timer.schedule(task, 10000, props.getTimerPeriod()); //todo value
+        //timer.cancel();
     }
 
     @Override

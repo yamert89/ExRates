@@ -65,9 +65,6 @@ public class Aggregator {
             if (exchange == null) {
                 try {
                     exchange = applicationContext.getBean(set.getValue());
-                    /*Class claz = Class.forName(set.getValue().getCanonicalName());
-                    var ob = claz.getConstructor().newInstance();
-                    exchange = set.getValue().cast(ob);*/
                     exchange = exchangeService.persist(exchange);
                     pairsSize = calculatePairsSize(exchange);
                     var pairs = new TreeSet<>(exchange.getPairs());
@@ -89,7 +86,7 @@ public class Aggregator {
             genericApplicationContext.registerBean(clazz, () -> finalExchange, (def) -> def.setPrimary(true));
             //genericApplicationContext.refresh();
 
-            Arrays.stream(genericApplicationContext.getBeanDefinitionNames()).forEach(System.out::println);
+            //Arrays.stream(genericApplicationContext.getBeanDefinitionNames()).forEach(System.out::println);
             exchange = genericApplicationContext.getBean(set.getValue());
             exchanges.put(set.getKey(), exchange);
         }
@@ -182,6 +179,10 @@ public class Aggregator {
             counter += tLimit;
         }
         return counter / tLimits.size();
+    }
+
+    public void save(){
+        exchanges.forEach((name, exch) -> exchangeService.merge(exch));
     }
 
 

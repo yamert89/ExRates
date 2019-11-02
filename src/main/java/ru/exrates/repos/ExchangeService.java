@@ -49,6 +49,11 @@ public class ExchangeService {
     }
 
     @Transactional
+    public BasicExchange merge(BasicExchange exchange){
+       return exchangeRepository.save(exchange);
+    }
+
+    @Transactional
     public BasicExchange persist(BasicExchange exchange){
         return exchangeRepository.save(exchange);
     }

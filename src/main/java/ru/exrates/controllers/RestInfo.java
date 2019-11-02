@@ -60,4 +60,9 @@ public class RestInfo {
         return pname == null ? aggregator.getCurStat(c1, c2) : aggregator.getCurStat(pname);
     }
 
+    @GetMapping("/service/save")
+    public void save(){
+        aggregator.save();
+    }
+
 }
