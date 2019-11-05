@@ -33,7 +33,7 @@ public abstract class BasicExchange implements Exchange {
     boolean temporary = true;
     private final static Logger logger = LogManager.getLogger(BasicExchange.class);
 
-    static String URL_ENDPOINT, URL_CURRENT_AVG_PRICE, URL_INFO, URL_PRICE_CHANGE, URL_PING;
+    static String URL_ENDPOINT, URL_CURRENT_AVG_PRICE, URL_INFO, URL_PRICE_CHANGE, URL_PING, URL_ORDER;
 
     @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @Getter
@@ -52,7 +52,7 @@ public abstract class BasicExchange implements Exchange {
     String name;
 
 
-    @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @OneToMany(orphanRemoval = true, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @Getter
     protected Set<CurrencyPair> pairs = new TreeSet<>();
 
@@ -128,8 +128,9 @@ public abstract class BasicExchange implements Exchange {
 
     }
 
-    public boolean dataElapsed(CurrencyPair pair, Duration timeout){
-        return Instant.now().isAfter(Instant.ofEpochMilli(pair.getUpdateTimes()[0] + timeout.toMillis()));
+    public boolean dataElapsed(CurrencyPair pair, Duration timeout, int idx){
+        logger.debug(String.format("Pair %1$s updated on field %2$s %3$s | current time = %4$s", pair.getSymbol(), idx, pair.getUpdateTimes()[idx], Instant.now()));
+        return Instant.now().isAfter(Instant.ofEpochMilli(pair.getUpdateTimes()[idx] + timeout.toMillis()));
     }
 
 

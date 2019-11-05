@@ -8,6 +8,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
+import ru.exrates.configs.Properties;
 import ru.exrates.entities.Currency;
 import ru.exrates.entities.CurrencyPair;
 import ru.exrates.entities.exchanges.BasicExchange;
@@ -32,10 +33,18 @@ public class Aggregator {
     private ExchangeService exchangeService;
     private ApplicationContext applicationContext;
     private GenericApplicationContext genericApplicationContext;
+    private Properties props;
+
 
     {
         exchangeNames.put("binanceExchange", BinanceExchange.class);
     }
+
+    @Autowired
+    public void setProps(Properties props) {
+        this.props = props;
+    }
+
     @Autowired
     public void setGenericApplicationContext(GenericApplicationContext genericApplicationContext) {
         this.genericApplicationContext = genericApplicationContext;
@@ -76,9 +85,12 @@ public class Aggregator {
                 }
             }else {
                 pairsSize = calculatePairsSize(exchange);
-                var page = exchangeService.fillPairs(pairsSize);
-                exchange.getPairs().clear();
-                exchange.getPairs().addAll(page.getContent());
+                if (exchange.getPairs().size() > pairsSize){
+                    var page = exchangeService.fillPairs(pairsSize);
+                    exchange.getPairs().clear();
+                    exchange.getPairs().addAll(page.getContent());
+                }
+
             }
             var finalExchange = exchange;
             Class clazz = set.getValue() == BinanceExchange.class ? BinanceExchange.class : BinanceExchange.class;
@@ -167,6 +179,7 @@ public class Aggregator {
 
       //todo check for seconds limit
     public int calculatePairsSize(BasicExchange exchange){
+        if (props.isPersistenceStrategy()) return props.getMaxSize();
         var tLimits = new LinkedList<Integer>();
         var ammountReqs = exchange.getChangePeriods().size() + 1;
         for (Limit limit : exchange.getLimits()) {

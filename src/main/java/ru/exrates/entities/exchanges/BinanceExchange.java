@@ -35,6 +35,7 @@ public class BinanceExchange extends BasicExchange {
         URL_INFO = "/api/v1/exchangeInfo";
         URL_PRICE_CHANGE = "/api/v1/klines";
         URL_PING = "/api/v1/ping";
+        URL_ORDER = "/api/v3/depth";
     }
 
     public BinanceExchange() {
@@ -52,7 +53,6 @@ public class BinanceExchange extends BasicExchange {
             try {
                 currentPrice(p, updatePeriod);
                 priceChange(p, updatePeriod);
-
             } catch (JSONException e) {
                 logger.error("task JS ex", e);
             } catch (LimitExceededException e){
@@ -79,7 +79,7 @@ public class BinanceExchange extends BasicExchange {
     @Override
     public void currentPrice (CurrencyPair pair, Duration timeout)
             throws JSONException, NullPointerException, LimitExceededException, ErrorCodeException, BanException { //todo timeout
-        if (!dataElapsed(pair, timeout)) return;
+        if (!dataElapsed(pair, timeout, 0)) return;
         //var variables = new HashMap<String, String>();
         //variables.put("symbol", pair.getSymbol());
         var entity = new JSONObject(restTemplate.getForEntityImpl(URL_ENDPOINT + URL_CURRENT_AVG_PRICE + "?symbol=" + pair.getSymbol(), String.class, LimitType.WEIGHT).getBody());
@@ -93,7 +93,7 @@ public class BinanceExchange extends BasicExchange {
     @Override
     public void priceChange (CurrencyPair pair, Duration timeout)
             throws JSONException, LimitExceededException, ErrorCodeException, BanException {
-        if (!dataElapsed(pair, timeout)) return;
+        if (!dataElapsed(pair, timeout, 1)) return;
         var change = pair.getPriceChange();
         var symbol = "?symbol=" + pair.getSymbol();
         var period = "&interval=";
@@ -110,7 +110,7 @@ public class BinanceExchange extends BasicExchange {
     @Override
     public void priceChange (CurrencyPair pair, Duration timeout, Map<String, String> uriVariables) //todo limit > 1 logic
             throws JSONException, LimitExceededException, ErrorCodeException, BanException{
-        if (!dataElapsed(pair, timeout)) return;
+        if (!dataElapsed(pair, timeout, 1)) return;
         var change = pair.getPriceChange();
         for (TimePeriod per : changePeriods) {
             var entity = new JSONArray(restTemplate.getForEntityImpl(
@@ -122,17 +122,14 @@ public class BinanceExchange extends BasicExchange {
 
     @PostConstruct
     private void init(){
+        limitCode = 429;
+        banCode = 418;
         restTemplate.setLimitCode(limitCode);
         restTemplate.setBanCode(banCode);
         if (!temporary) return;
         logger.debug("Postconstruct binance");
         name = "binanceExchange";
-        limitCode = 429;
-        banCode = 418;
-
         limits = new HashSet<>();
-
-
         changePeriods = new ArrayList<>();
         Collections.addAll(changePeriods,
                 new TimePeriod(Duration.ofMinutes(3), "3m"),
@@ -177,6 +174,11 @@ public class BinanceExchange extends BasicExchange {
             for (int i = 0; i < symbols.length(); i++) {
                 pairs.add(new CurrencyPair(symbols.getJSONObject(i).getString("symbol"), this));
             }
+
+
+
+
+
             temporary = false;
             logger.debug("exchange initialized with " + pairs.size() + " pairs");
         } catch (JSONException e) {
