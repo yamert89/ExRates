@@ -78,13 +78,11 @@ public abstract class BasicExchange implements Exchange {
     BasicExchange() {
         // init pairs
 
-
-
     }
 
     @PostConstruct
-    private void init(){
-        logger.debug("Basic postconstruct run");
+    protected void init(){
+        logger.debug("Postconstruct " + name);
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
@@ -99,7 +97,7 @@ public abstract class BasicExchange implements Exchange {
         };
         Timer timer = new Timer();
         updatePeriod = Duration.ofMillis(props.getTimerPeriod());
-        timer.schedule(task, 10000, props.getTimerPeriod()); //todo value
+        timer.schedule(task, 10000, props.getTimerPeriod());
         //timer.cancel();
     }
 
@@ -134,7 +132,35 @@ public abstract class BasicExchange implements Exchange {
     }
 
 
-    abstract void task() throws RuntimeException;
+    protected void task() throws RuntimeException{
+        logger.debug( name + " task started....");
+        CurrencyPair pair = null;
+        for (CurrencyPair p : pairs) {
+            try {
+                currentPrice(p, updatePeriod);
+                priceChange(p, updatePeriod);
+            } catch (JSONException e) {
+                logger.error("task JS ex", e);
+            } catch (LimitExceededException e){
+                logger.error(e.getMessage());
+                try {
+                    sleepValueSeconds *= 2;
+                    Thread.sleep(sleepValueSeconds);
+                } catch (InterruptedException ex) {
+                    logger.error("Interrupt ", ex);
+                }
+                task();
+                return;
+            } catch (ErrorCodeException e){
+                logger.error(e.getMessage());
+            } catch (BanException e){
+                logger.error(e.getMessage());
+                throw new RuntimeException("You are banned from " + this.name);
+            } catch (Exception e){
+                throw new RuntimeException("Unknown error", e);
+            }
+        }
+    };
 
     public abstract void currentPrice(CurrencyPair pair, Duration timeout) throws
             JSONException, NullPointerException, LimitExceededException, ErrorCodeException, BanException;

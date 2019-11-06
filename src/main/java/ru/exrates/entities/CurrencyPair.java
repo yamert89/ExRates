@@ -33,7 +33,7 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
     private Map<TimePeriod, Double> priceChange = new UpdateListenerMap<>(this);
 
     @ElementCollection(fetch = FetchType.EAGER)
-    private Collection<Double> priceHistory = new ArrayBlockingQueue<>(20, true);
+    private Collection<Double> priceHistory = new ArrayBlockingQueue<>(20, true); //todo
 
     @Getter @Setter
     private Instant lastUse = Instant.now();

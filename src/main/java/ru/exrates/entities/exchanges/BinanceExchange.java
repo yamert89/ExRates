@@ -31,7 +31,7 @@ public class BinanceExchange extends BasicExchange {
 
     static {
         URL_ENDPOINT = "https://api.binance.com";
-        URL_CURRENT_AVG_PRICE = "/api/v3/avgPrice";
+        URL_CURRENT_AVG_PRICE = "/api/v3/avgPrice"; //todo /api/v3/ticker/price ?
         URL_INFO = "/api/v1/exchangeInfo";
         URL_PRICE_CHANGE = "/api/v1/klines";
         URL_PING = "/api/v1/ping";
@@ -43,37 +43,11 @@ public class BinanceExchange extends BasicExchange {
     }
 
     @Override
-    void task () throws RuntimeException{
+    protected void task () throws RuntimeException{
         if (getId() == null) return;
         var resp = restTemplate.getForEntity(URL_ENDPOINT + URL_PING, String.class).getStatusCode().value();
         if (resp != 200) return;
-        logger.debug("binance task started....");
-        CurrencyPair pair = null;
-        for (CurrencyPair p : pairs) {
-            try {
-                currentPrice(p, updatePeriod);
-                priceChange(p, updatePeriod);
-            } catch (JSONException e) {
-                logger.error("task JS ex", e);
-            } catch (LimitExceededException e){
-                logger.error(e.getMessage());
-                try {
-                    sleepValueSeconds *= 2;
-                    Thread.sleep(sleepValueSeconds);
-                } catch (InterruptedException ex) {
-                    logger.error("Interrupt ", ex);
-                }
-                task();
-                return;
-            } catch (ErrorCodeException e){
-                logger.error(e.getMessage());
-            } catch (BanException e){
-                logger.error(e.getMessage());
-                throw new RuntimeException("You are banned from " + this.name);
-            } catch (Exception e){
-                throw new RuntimeException("Unknown error", e);
-            }
-        }
+        super.task();
     }
 
     @Override
@@ -121,13 +95,13 @@ public class BinanceExchange extends BasicExchange {
     }
 
     @PostConstruct
-    private void init(){
+    @Override
+    protected void init(){
         limitCode = 429;
         banCode = 418;
         restTemplate.setLimitCode(limitCode);
         restTemplate.setBanCode(banCode);
         if (!temporary) return;
-        logger.debug("Postconstruct binance");
         name = "binanceExchange";
         limits = new HashSet<>();
         changePeriods = new ArrayList<>();
@@ -152,8 +126,6 @@ public class BinanceExchange extends BasicExchange {
                     .getBody());
 
 
-
-
             JSONArray symbols = null;
             var array = entity.getJSONArray("rateLimits");
 
@@ -175,12 +147,8 @@ public class BinanceExchange extends BasicExchange {
                 pairs.add(new CurrencyPair(symbols.getJSONObject(i).getString("symbol"), this));
             }
 
-
-
-
-
             temporary = false;
-            logger.debug("exchange initialized with " + pairs.size() + " pairs");
+            logger.debug("exchange " + name + "initialized with " + pairs.size() + " pairs");
         } catch (JSONException e) {
             logger.error("task JSON E", e);
         } catch (LimitExceededException e) {
@@ -192,6 +160,7 @@ public class BinanceExchange extends BasicExchange {
         } catch (Exception e){
             logger.error("Unknown exc in init", e);
         }
+        super.init();
 
 
     }
