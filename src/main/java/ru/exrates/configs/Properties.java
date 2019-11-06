@@ -17,6 +17,13 @@ public class Properties {
     @Value("${app.pairs.strategy.persistent}")
     private String persistenceSize;
 
+    @Value("${app.save.timer}")
+    private String savingTimer;
+
+    public int getSavingTimer(){
+        return Integer.parseInt(savingTimer);
+    }
+
     public long getTimerPeriod() {
         return Long.parseLong(timerPeriod);
     }

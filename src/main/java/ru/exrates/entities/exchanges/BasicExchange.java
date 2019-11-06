@@ -52,7 +52,7 @@ public abstract class BasicExchange implements Exchange {
     String name;
 
 
-    @OneToMany(orphanRemoval = true, cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @OneToMany(cascade = {CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @Getter
     protected Set<CurrencyPair> pairs = new TreeSet<>();
 
@@ -129,7 +129,7 @@ public abstract class BasicExchange implements Exchange {
     }
 
     public boolean dataElapsed(CurrencyPair pair, Duration timeout, int idx){
-        logger.debug(String.format("Pair %1$s updated on field %2$s %3$s | current time = %4$s", pair.getSymbol(), idx, pair.getUpdateTimes()[idx], Instant.now()));
+        logger.debug(String.format("Pair %1$s updated on field %2$s %3$s | current time = %4$s", pair.getSymbol(), idx, Instant.ofEpochMilli(pair.getUpdateTimes()[idx]), Instant.now()));
         return Instant.now().isAfter(Instant.ofEpochMilli(pair.getUpdateTimes()[idx] + timeout.toMillis()));
     }
 

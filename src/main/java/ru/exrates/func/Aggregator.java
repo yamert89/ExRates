@@ -101,6 +101,14 @@ public class Aggregator {
             //Arrays.stream(genericApplicationContext.getBeanDefinitionNames()).forEach(System.out::println);
             exchange = genericApplicationContext.getBean(set.getValue());
             exchanges.put(set.getKey(), exchange);
+
+            var task = new TimerTask() {
+                @Override
+                public void run() {
+                    save();
+                }
+            };
+            new Timer().schedule(task, 300000, props.getSavingTimer());
         }
     }
 
@@ -195,7 +203,7 @@ public class Aggregator {
     }
 
     public void save(){
-        exchanges.forEach((name, exch) -> exchangeService.merge(exch));
+        exchanges.forEach((name, exch) -> exchangeService.update(exch));
     }
 
 

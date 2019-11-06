@@ -1,5 +1,7 @@
 package ru.exrates.repos;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.exrates.entities.CurrencyPair;
 import ru.exrates.entities.exchanges.BasicExchange;
+import ru.exrates.func.Aggregator;
 import ru.exrates.repos.daos.CurrencyRepository;
 import ru.exrates.repos.daos.ExchangeRepository;
 
@@ -18,6 +21,7 @@ import java.util.Optional;
 @Service
 @Transactional
 public class ExchangeService {
+    private final static Logger logger = LogManager.getLogger(ExchangeService.class);
 
     private ExchangeRepository exchangeRepository;
     private CurrencyRepository currencyRepository;
@@ -51,6 +55,13 @@ public class ExchangeService {
     @Transactional
     public BasicExchange merge(BasicExchange exchange){
        return exchangeRepository.save(exchange);
+    }
+
+    @Transactional
+    public BasicExchange update(BasicExchange exchange){
+        logger.debug(exchange.getName() + " updated");
+        exchange.getPairs().forEach(p -> currencyRepository.save(p));
+        return exchangeRepository.save(exchange);
     }
 
     @Transactional
