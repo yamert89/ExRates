@@ -26,7 +26,7 @@ public class ExmoExchange extends BasicExchange {
     }
 
     @Override
-    void task() throws RuntimeException {
+    protected void task() throws RuntimeException {
 
     }
 

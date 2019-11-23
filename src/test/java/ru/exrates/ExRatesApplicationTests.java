@@ -21,6 +21,7 @@ import ru.exrates.entities.exchanges.BinanceExchange;
 import ru.exrates.entities.exchanges.secondary.collections.UpdateListenerMap;
 
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 
 //@RunWith(SpringRunner.class)
 //@SpringBootTest
@@ -91,6 +92,8 @@ public class ExRatesApplicationTests {
         System.out.println(new Date(1570320000000L));
         System.out.println(new Date(1570406400000L));
         System.out.println(new Date(1570492800000L));
+
+
     }
 
 
