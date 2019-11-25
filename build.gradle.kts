@@ -4,21 +4,22 @@ plugins {
     id("io.spring.dependency-management") version "1.0.8.RELEASE"
     id("com.github.onslip.gradle-one-jar") version "1.0.5"
     java
-    kotlin("jvm") version "1.2.31"
-    `build-scan`
+    //kotlin("jvm") version "1.2.31"
+    //`build-scan`
 }
 
-buildScan {
+/*buildScan {
     termsOfServiceUrl = "https://gradle.com/terms-of-service"
     termsOfServiceAgree = "yes"
     publishAlways()
-}
+}*/
 
 group = "ru.exrates"
 version = "0.0.1-SNAPSHOT"
 
 java{
-    sourceCompatibility = JavaVersion.VERSION_1_10
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 val developmentOnly = configurations.create("developmentOnly")
@@ -57,51 +58,22 @@ dependencies (){
 
 tasks{
 
-    /*val myOneJar by creating(com.github.rholder.gradle.task.OneJar::class){
-        mainClass = "ru.exrates.ExRatesApplication"
-        //archiveFileName.set("My2.jar")
-        destinationDirectory.set(File("J:/outJar/"))
-        dependsOn.add(named("jar"))
-    }*/
-
-    val myJar by creating(Jar::class) {
-        archiveFileName.set("My.jar")
-        destinationDirectory.set(File("${buildDir}/outJar/"))
-        from(configurations.compileClasspath.get())
-        from(compileJava.get())
-        //from(configurations.compileClasspath.get().map{if (it.isDirectory) it else zipTree(it)})
-        //with(tasks.jar as CopySpec)
+    jar{
         manifest{
             attributes["Main-Class"] = "ru.exrates.ExRatesApplication"
         }
-        dependsOn.add(named("jar"))
-
+        
+        from(configurations.compileClasspath.get())
+        /*into("lib"){
+            from(configurations.compileClasspath.get())
+        }*/
+        archiveFileName.set("my.jar")
+        enabled = true
     }
+
+
 }
 
 
 
-/*tasks{
-    register("myJar", Jar::class){
-        archiveBaseName
-    }
 
-}*/
-
-
-/*tasks.jar{
-    manifest {
-        attributes(Pair("Main-Class", "ru.exrates.ExRatesApplication"))
-    }
-    archiveName = "hello.jar"
-    destinationDir = file("${buildDir}/jars")
-    
-}*/
-
-/*tasks.jar {
-    manifest {
-        attributes(Pair("Main-Class", "ru.exrates.ExRatesApplication"))
-       // attributes "Main-Class": "ru.exrates.ExRatesApplication"
-    }
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-}*/
