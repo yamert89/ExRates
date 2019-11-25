@@ -56,20 +56,31 @@ dependencies (){
 
 }
 
+springBoot{
+
+}
+
 tasks{
 
-    jar{
+    /*jar{
         manifest{
             attributes["Main-Class"] = "ru.exrates.ExRatesApplication"
         }
-        
-        from(configurations.compileClasspath.get())
-        /*into("lib"){
+        from(configurations.compileClasspath.get().map{if (it.isDirectory) it else zipTree(it)})
+        //from(configurations.compileClasspath.get())
+        *//*into("lib"){
             from(configurations.compileClasspath.get())
-        }*/
+        }*//*
         archiveFileName.set("my.jar")
         enabled = true
+    }*/
+
+    bootJar{
+        mainClassName = "ru.exrates.ExratesApplication"
+        archiveFileName.set("demo.jar")
     }
+
+
 
 
 }

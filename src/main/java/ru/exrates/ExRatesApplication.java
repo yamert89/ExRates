@@ -10,7 +10,12 @@ import org.springframework.context.annotation.PropertySource;
 public class ExRatesApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ExRatesApplication.class, args);
+        try {
+            System.out.println("start");
+            SpringApplication.run(ExRatesApplication.class, args);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
