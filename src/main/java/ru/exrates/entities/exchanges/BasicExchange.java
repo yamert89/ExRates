@@ -54,7 +54,7 @@ public abstract class BasicExchange implements Exchange {
 
     @OneToMany(cascade = {CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @Getter
-    protected Set<CurrencyPair> pairs = new TreeSet<>();
+    protected SortedSet<CurrencyPair> pairs = new TreeSet<>();
 
     @Transient
     private Properties props;
@@ -104,7 +104,7 @@ public abstract class BasicExchange implements Exchange {
     @Override
     public void insertPair(CurrencyPair pair){
         pairs.add(pair);
-        if (pairs.size() > props.getMaxSize()) ((TreeSet) pairs).pollLast();
+        if (pairs.size() > props.getMaxSize()) pairs.remove(pairs.last());
     }
 
     @Override
