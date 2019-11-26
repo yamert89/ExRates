@@ -57,7 +57,7 @@ dependencies (){
 }
 
 springBoot{
-
+    
 }
 
 tasks{
@@ -76,8 +76,9 @@ tasks{
     }*/
 
     bootJar{
-        mainClassName = "ru.exrates.ExratesApplication"
+        //mainClassName = "ru.exrates.ExratesApplication"
         archiveFileName.set("demo.jar")
+        launchScript()
     }
 
 
