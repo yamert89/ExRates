@@ -1,8 +1,10 @@
+import org.hidetake.groovy.ssh.core.Remote
 
 plugins {
     id("org.springframework.boot") version "2.1.9.RELEASE"
     id("io.spring.dependency-management") version "1.0.8.RELEASE"
     id("com.github.onslip.gradle-one-jar") version "1.0.5"
+    id("org.hidetake.ssh") version "2.10.1"
     java
     //kotlin("jvm") version "1.2.31"
     //`build-scan`
@@ -56,35 +58,49 @@ dependencies (){
 
 }
 
-springBoot{
-    
+remotes{
+
+    val rem = this.create("rem")
+    rem.host = "enchat.ru"
+    rem.user = "root"
+    rem.identity = File("${projectDir}/myKey")
+    this.add(rem)
+
 }
 
 tasks{
 
-    /*jar{
-        manifest{
-            attributes["Main-Class"] = "ru.exrates.ExRatesApplication"
-        }
-        from(configurations.compileClasspath.get().map{if (it.isDirectory) it else zipTree(it)})
-        //from(configurations.compileClasspath.get())
-        *//*into("lib"){
-            from(configurations.compileClasspath.get())
-        }*//*
-        archiveFileName.set("my.jar")
-        enabled = true
-    }*/
-
     bootJar{
-        //mainClassName = "ru.exrates.ExratesApplication"
         archiveFileName.set("demo.jar")
         launchScript()
     }
 
-
-
-
+    bootJar.get().dependsOn.add("classes")
 }
+
+/*val deploy = task("deploy"){
+    doLast{
+        val cl: groovy.lang.Closure<Remote> by extra
+        cl.run { print("ad") }
+        val session = org.hidetake.groovy.ssh.session.Session<Remote>(remotes.getByName("rem"), cl)
+        ssh.run{
+            session.closure
+            session.setProperty("put", "")
+           *//* val session = org.hidetake.groovy.ssh.session.Session<Remote>(remotes.getByName("rem")){
+                *//**//*put from: 'example.war', into: '/webapps'
+                execute 'sudo service tomcat restart'*//**//*
+            }*//*
+        }
+       
+
+        
+    }
+}*/
+
+
+
+
+
 
 
 
