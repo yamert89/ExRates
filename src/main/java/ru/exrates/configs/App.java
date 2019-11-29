@@ -42,6 +42,11 @@ public class App {
         return new DataSourceProperties();
     }
 
+    @Bean
+    public LifeCircle lifeCircle(){
+        return new LifeCircle();
+    }
+
 
 
 
