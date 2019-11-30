@@ -174,12 +174,17 @@ public class Aggregator {
         var curs = new HashMap<String, CurrencyPair>();
         exchanges.forEach((key, val) -> {
             var p = val.getPair(pname);
-            Optional<CurrencyPair> pair = Optional.empty();
-            if (p == null) pair = exchangeService.findPair(pname, val);
-            pair.ifPresent(currencyPair -> {
-                curs.put(key, currencyPair);
-                val.insertPair(currencyPair);
-            });
+            if(p != null) {
+                curs.put(key, p);
+                val.insertPair(p);
+            } else {
+                Optional<CurrencyPair> pair = Optional.empty();
+                pair = exchangeService.findPair(pname, val);
+                pair.ifPresent(currencyPair -> {
+                    curs.put(key, currencyPair);
+                    val.insertPair(currencyPair);
+                });
+            }
         });
         return curs;
     }

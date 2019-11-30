@@ -1,6 +1,7 @@
 package ru.exrates.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
 import ru.exrates.entities.exchanges.BasicExchange;
 import ru.exrates.entities.exchanges.secondary.collections.UpdateListenerMap;
+import ru.exrates.utils.JsonSerializers;
 
 import javax.persistence.*;
 import java.time.Instant;
@@ -30,6 +32,7 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "PERIOD")
     @Column(name = "VALUE")
+    @JsonSerialize(keyUsing = JsonSerializers.TimePeriodSerializer.class)
     private Map<TimePeriod, Double> priceChange = new UpdateListenerMap<>(this);
 
     @ElementCollection(fetch = FetchType.EAGER)
