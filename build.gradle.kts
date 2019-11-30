@@ -55,6 +55,8 @@ dependencies (){
     testImplementation("org.springframework.security:spring-security-test")
     testCompile("org.mockito:mockito-core:2.1.0")
     testRuntimeOnly("org.postgresql:postgresql:42.2.8")
+    implementation("org.springframework.boot:spring-boot-starter-actuator:2.2.1.RELEASE")
+    implementation("org.springframework.boot:spring-boot-starter-security:2.2.1.RELEASE")
 
 }
 
