@@ -5,8 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.annotations.SortComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.core.annotation.Order;
 import ru.exrates.configs.Properties;
 import ru.exrates.entities.Currency;
 import ru.exrates.entities.CurrencyPair;
@@ -54,7 +56,11 @@ public abstract class BasicExchange implements Exchange {
 
     @OneToMany(cascade = {CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @Getter
-    protected SortedSet<CurrencyPair> pairs = new TreeSet<>();
+    @SortComparator(CurrencyPair.CurComparator.class)
+    //@org.hibernate.annotations.OrderBy(clause = "last_use desc")
+    //@Column(name="last_use")
+    //@OrderColumn(name = "last_use", nullable = false)
+    protected final SortedSet<CurrencyPair> pairs = new TreeSet<>();
 
     @Transient
     private Properties props;
@@ -135,31 +141,34 @@ public abstract class BasicExchange implements Exchange {
     protected void task() throws RuntimeException{
         logger.debug( name + " task started....");
         CurrencyPair pair = null;
-        for (CurrencyPair p : pairs) {
-            try {
-                currentPrice(p, updatePeriod);
-                priceChange(p, updatePeriod);
-            } catch (JSONException e) {
-                logger.error("task JS ex", e);
-            } catch (LimitExceededException e){
-                logger.error(e.getMessage());
+        synchronized (pairs){
+            for (CurrencyPair p : pairs) {
                 try {
-                    sleepValueSeconds *= 2;
-                    Thread.sleep(sleepValueSeconds);
-                } catch (InterruptedException ex) {
-                    logger.error("Interrupt ", ex);
+                    currentPrice(p, updatePeriod);
+                    priceChange(p, updatePeriod);
+                } catch (JSONException e) {
+                    logger.error("task JS ex", e);
+                } catch (LimitExceededException e){
+                    logger.error(e.getMessage());
+                    try {
+                        sleepValueSeconds *= 2;
+                        Thread.sleep(sleepValueSeconds);
+                    } catch (InterruptedException ex) {
+                        logger.error("Interrupt ", ex);
+                    }
+                    task();
+                    return;
+                } catch (ErrorCodeException e){
+                    logger.error(e.getMessage());
+                } catch (BanException e){
+                    logger.error(e.getMessage());
+                    throw new RuntimeException("You are banned from " + this.name);
+                } catch (Exception e){
+                    throw new RuntimeException("Unknown error", e);
                 }
-                task();
-                return;
-            } catch (ErrorCodeException e){
-                logger.error(e.getMessage());
-            } catch (BanException e){
-                logger.error(e.getMessage());
-                throw new RuntimeException("You are banned from " + this.name);
-            } catch (Exception e){
-                throw new RuntimeException("Unknown error", e);
             }
         }
+
     };
 
     public abstract void currentPrice(CurrencyPair pair, Duration timeout) throws

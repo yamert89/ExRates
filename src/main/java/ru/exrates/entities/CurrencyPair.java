@@ -116,5 +116,14 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
         return priceHistory;
     }
 
+    public static class CurComparator implements Comparator<CurrencyPair> {
+
+        @Override
+        public int compare(CurrencyPair o1, CurrencyPair o2) {
+            if (o1.lastUse.toEpochMilli() == o2.lastUse.toEpochMilli()) return 0;
+            return  o1.lastUse.isAfter(o2.getLastUse()) ? 1 : -1;
+        }
+    }
+
 
 }
