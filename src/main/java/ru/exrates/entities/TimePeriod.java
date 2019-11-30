@@ -1,10 +1,12 @@
 package ru.exrates.entities;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.exrates.repos.DurationConverter;
+import ru.exrates.utils.JsonSerializers;
 
 import javax.persistence.*;
 import java.time.Duration;
@@ -13,6 +15,7 @@ import java.time.Period;
 
 @Entity @Table(name = "change_periods")
 @NoArgsConstructor
+@JsonSerialize(using = JsonSerializers.TimePeriodSerializer.class)
 public class TimePeriod {
     @Id
     @GeneratedValue

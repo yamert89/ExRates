@@ -47,7 +47,7 @@ dependencies (){
     implementation("org.springframework.boot:spring-boot-configuration-processor")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.projectlombok:lombok")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    //developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("mysql:mysql-connector-java")
     runtimeOnly("org.postgresql:postgresql:42.2.8")
     annotationProcessor("org.projectlombok:lombok")
@@ -55,8 +55,8 @@ dependencies (){
     testImplementation("org.springframework.security:spring-security-test")
     testCompile("org.mockito:mockito-core:2.1.0")
     testRuntimeOnly("org.postgresql:postgresql:42.2.8")
-    implementation("org.springframework.boot:spring-boot-starter-actuator:2.2.1.RELEASE")
-    implementation("org.springframework.boot:spring-boot-starter-security:2.2.1.RELEASE")
+    //implementation("org.springframework.boot:spring-boot-starter-actuator:2.2.1.RELEASE")
+    
 
 }
 
