@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.bind.annotation.*;
 import ru.exrates.entities.CurrencyPair;
 import ru.exrates.entities.exchanges.Exchange;
@@ -23,6 +25,9 @@ public class RestInfo {
     private ObjectMapper objectMapper;
 
     @Autowired
+    private ConfigurableApplicationContext context;
+
+    @Autowired
     public void setObjectMapper(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
@@ -40,6 +45,7 @@ public class RestInfo {
     @PostMapping("/rest/exchange")
     public Exchange getExchange(@RequestBody String payload){
         JsonTemplates.ExchangePayload exchangePayload = null;
+        logger.debug("payload = [" + payload + "]");
         try {
             exchangePayload = objectMapper.readValue(payload, JsonTemplates.ExchangePayload.class);
             if (exchangePayload == null) throw new IOException();
@@ -57,12 +63,18 @@ public class RestInfo {
     @GetMapping("/rest/pair")
     public Map<String, CurrencyPair> pair(@RequestParam(required = false) String c1, @RequestParam(required = false) String c2,
                                           @RequestParam(required = false) String pname){
+        logger.debug("c1 = [" + c1 + "], c2 = [" + c2 + "], pname = [" + pname + "]");
         return pname == null ? aggregator.getCurStat(c1, c2) : aggregator.getCurStat(pname);
     }
 
     @GetMapping("/service/save")
     public void save(){
         aggregator.save();
+    }
+
+    @GetMapping("/close")
+    public void close(){
+        context.close();
     }
 
 }

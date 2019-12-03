@@ -66,6 +66,7 @@ public class Aggregator {
 
     @PostConstruct
     private void init(){
+        try{
         logger.debug("Postconstruct aggregator init");
         logger.debug(exchangeService);
         for (var set : exchangeNames.entrySet()) {
@@ -83,9 +84,9 @@ public class Aggregator {
                 } catch (Exception e) {
                     logger.error("Exchange initialize crashed", e);
                 }
-            }else {
+            } else {
                 pairsSize = calculatePairsSize(exchange);
-                if (exchange.getPairs().size() > pairsSize){
+                if (exchange.getPairs().size() > pairsSize) {
                     var page = exchangeService.fillPairs(pairsSize);
                     exchange.getPairs().clear();
                     exchange.getPairs().addAll(page.getContent());
@@ -109,6 +110,9 @@ public class Aggregator {
                 }
             };
             new Timer().schedule(task, 300000, props.getSavingTimer());
+        }
+        }catch (Exception e){
+            logger.error("Aggregator init failed", e);
         }
     }
 
@@ -191,7 +195,7 @@ public class Aggregator {
 
 
       //todo check for seconds limit
-    public int calculatePairsSize(BasicExchange exchange){
+    public int calculatePairsSize(BasicExchange exchange)throws Exception{
         if (props.isPersistenceStrategy()) return props.getMaxSize();
         var tLimits = new LinkedList<Integer>();
         var ammountReqs = exchange.getChangePeriods().size() + 1;
