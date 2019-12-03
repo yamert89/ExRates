@@ -1,5 +1,6 @@
 package ru.exrates.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,6 +25,7 @@ public class TimePeriod {
 
     @Getter @Setter
     @Column(nullable = false) @Convert(converter = DurationConverter.class)
+    @JsonIgnore
     private Duration period;
 
     @Getter @Setter
@@ -34,5 +36,14 @@ public class TimePeriod {
         this.period = period;
         this.name = name;
 
+    }
+
+    @Override
+    public String toString() {
+        return "TimePeriod{" +
+                "id=" + id +
+                ", period=" + period +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

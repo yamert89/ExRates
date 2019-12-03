@@ -43,11 +43,11 @@ public class RestInfo {
      */
 
     @PostMapping("/rest/exchange")
-    public Exchange getExchange(@RequestBody String payload){
-        JsonTemplates.ExchangePayload exchangePayload = null;
-        logger.debug("payload = [" + payload + "]");
+    public Exchange getExchange(@RequestBody JsonTemplates.ExchangePayload exchangePayload){
+        //JsonTemplates.ExchangePayload exchangePayload = null;
+        logger.debug("payload = " + exchangePayload);
         try {
-            exchangePayload = objectMapper.readValue(payload, JsonTemplates.ExchangePayload.class);
+            //exchangePayload = objectMapper.readValue(payload, JsonTemplates.ExchangePayload.class);
             if (exchangePayload == null) throw new IOException();
         } catch (IOException e) {
             logger.error("error read Json" , e);
