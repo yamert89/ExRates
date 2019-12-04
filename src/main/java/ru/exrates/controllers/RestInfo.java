@@ -50,7 +50,7 @@ public class RestInfo {
             //exchangePayload = objectMapper.readValue(payload, JsonTemplates.ExchangePayload.class);
             if (exchangePayload == null) throw new IOException();
         } catch (IOException e) {
-            logger.error("error read Json" , e);
+            logger.error("error read Json" , e); //todo exc to client
             return null;
         }
         return exchangePayload.getPairs().length > 0 ?

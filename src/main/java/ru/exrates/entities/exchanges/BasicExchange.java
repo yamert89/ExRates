@@ -110,7 +110,7 @@ public abstract class BasicExchange implements Exchange {
     @Override
     public void insertPair(CurrencyPair pair){
         pairs.add(pair);
-        if (pairs.size() > props.getMaxSize()) pairs.remove(pairs.last());
+        if (pairs.size() > props.getMaxSize()) pairs.remove(pairs.first()); //TODO check
     }
 
     @Override
