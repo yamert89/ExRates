@@ -18,7 +18,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 @Entity
 public class CurrencyPair implements Comparable<CurrencyPair>{
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     @Getter
     private int id;
@@ -32,7 +32,7 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
     @ElementCollection(fetch = FetchType.EAGER)
     @MapKeyColumn(name = "PERIOD")
     @Column(name = "VALUE")
-    @JsonSerialize(keyUsing = JsonSerializers.TimePeriodSerializer.class)
+    //@JsonSerialize(keyUsing = JsonSerializers.TimePeriodSerializer.class)
     private Map<TimePeriod, Double> priceChange = new UpdateListenerMap<>(this);
 
     @ElementCollection(fetch = FetchType.EAGER)

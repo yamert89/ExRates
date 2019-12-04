@@ -1,6 +1,7 @@
 package ru.exrates.entities.exchanges;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
@@ -18,6 +19,8 @@ import ru.exrates.entities.exchanges.secondary.exceptions.BanException;
 import ru.exrates.entities.exchanges.secondary.exceptions.ErrorCodeException;
 import ru.exrates.entities.exchanges.secondary.exceptions.LimitExceededException;
 import ru.exrates.repos.DurationConverter;
+import ru.exrates.utils.JsonSerializers;
+import ru.exrates.utils.JsonTemplates;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.*;
@@ -39,6 +42,7 @@ public abstract class BasicExchange implements Exchange {
 
     @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @Getter
+    @JsonIgnore
     List<TimePeriod> changePeriods;
 
     @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
@@ -47,7 +51,7 @@ public abstract class BasicExchange implements Exchange {
     Set<Limit> limits;
 
     @JsonIgnore int limitCode, banCode, sleepValueSeconds = 30;
-    @JsonIgnore
+    @JsonIgnore //TODO delete
     Duration updatePeriod;
 
     @Getter
