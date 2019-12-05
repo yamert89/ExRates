@@ -44,7 +44,8 @@ public abstract class BasicExchange implements Exchange {
 
     @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @Getter
-    @JsonIgnore //TODO delete
+    //@JsonIgnore //TODO delete
+    @JsonSerialize(using = JsonSerializers.TimePeriodListSerializer.class)
     List<TimePeriod> changePeriods;
 
     @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
