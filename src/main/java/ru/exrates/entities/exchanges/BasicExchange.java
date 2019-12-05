@@ -30,7 +30,7 @@ import java.time.Instant;
 import java.util.*;
 
 @Entity @Inheritance(strategy = InheritanceType.SINGLE_TABLE) @DiscriminatorColumn(name = "EXCHANGE_TYPE")
-@JsonIgnoreProperties({"id", "limits", "limitcode", "banCode", "sleepValueSeconds", "updatePeriod", })
+@JsonIgnoreProperties({"id", "limits", "limitcode", "banCode", "sleepValueSeconds", "updatePeriod", "temporary"})
 public abstract class BasicExchange implements Exchange {
 
     @Id @GeneratedValue
