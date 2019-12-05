@@ -45,14 +45,14 @@ public class EntityTest {
         var exch = new BinanceExchange();
         var pair = new CurrencyPair("df");
         pair.setPrice(1);
-        boolean elapsed = exch.dataElapsed(pair, Duration.ofSeconds(1));
+        boolean elapsed = exch.dataElapsed(pair, Duration.ofSeconds(1), 1);
         assertFalse(elapsed);
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        elapsed = exch.dataElapsed(pair, Duration.ofSeconds(1));
+        elapsed = exch.dataElapsed(pair, Duration.ofSeconds(1), 1);
         assertTrue(elapsed);
     }
 }

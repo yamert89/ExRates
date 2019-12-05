@@ -18,7 +18,7 @@ public class JsonSerializers {
         public void serialize(TimePeriod value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
             try {
                 StringWriter writer = new StringWriter();
-                mapper.writeValue(writer, value);
+                mapper.writeValue(writer, value.getName());
                 gen.writeFieldName(writer.toString());
 
 

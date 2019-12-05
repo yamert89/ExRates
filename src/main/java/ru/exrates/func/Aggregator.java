@@ -195,18 +195,24 @@ public class Aggregator {
 
 
       //todo check for seconds limit
-    public int calculatePairsSize(BasicExchange exchange)throws Exception{
-        if (props.isPersistenceStrategy()) return props.getMaxSize();
-        var tLimits = new LinkedList<Integer>();
-        var ammountReqs = exchange.getChangePeriods().size() + 1;
-        for (Limit limit : exchange.getLimits()) {
-            var l = (int)((limit.getLimitValue() / (double)(limit.getInterval().getSeconds() / 60)) / ammountReqs);
-            logger.debug("tLimit = " + l);
-            tLimits.add(l);
-        }
+    public int calculatePairsSize(BasicExchange exchange){
         int counter = 0;
-        for (Integer tLimit : tLimits) {
-            counter += tLimit;
+        var tLimits = new LinkedList<Integer>();
+        try {
+            if (props.isPersistenceStrategy()) return props.getMaxSize();
+
+            var ammountReqs = exchange.getChangePeriods().size() + 1;
+            for (Limit limit : exchange.getLimits()) {
+                var l = (int) ((limit.getLimitValue() / (double) (limit.getInterval().getSeconds() / 60)) / ammountReqs);
+                logger.debug("tLimit = " + l);
+                tLimits.add(l);
+            }
+
+            for (Integer tLimit : tLimits) {
+                counter += tLimit;
+            }
+        }catch (Exception e){
+            logger.error("calculate pairs size ", e);
         }
         return counter / tLimits.size();
     }

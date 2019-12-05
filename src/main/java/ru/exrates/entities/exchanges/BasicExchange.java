@@ -1,6 +1,7 @@
 package ru.exrates.entities.exchanges;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,6 +30,7 @@ import java.time.Instant;
 import java.util.*;
 
 @Entity @Inheritance(strategy = InheritanceType.SINGLE_TABLE) @DiscriminatorColumn(name = "EXCHANGE_TYPE")
+@JsonIgnoreProperties({"id", "limits", "limitcode", "banCode", "sleepValueSeconds", "updatePeriod", })
 public abstract class BasicExchange implements Exchange {
 
     @Id @GeneratedValue
@@ -42,16 +44,15 @@ public abstract class BasicExchange implements Exchange {
 
     @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @Getter
-    @JsonIgnore
+    @JsonIgnore //TODO delete
     List<TimePeriod> changePeriods;
 
     @OneToMany(orphanRemoval = true, cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
     @Getter
-    @JsonIgnore
     Set<Limit> limits;
 
-    @JsonIgnore int limitCode, banCode, sleepValueSeconds = 30;
-    @JsonIgnore //TODO delete
+    int limitCode, banCode, sleepValueSeconds = 30;
+
     Duration updatePeriod;
 
     @Getter
@@ -114,7 +115,7 @@ public abstract class BasicExchange implements Exchange {
     @Override
     public void insertPair(CurrencyPair pair){
         pairs.add(pair);
-        if (pairs.size() > props.getMaxSize()) pairs.remove(pairs.first()); //TODO check
+        if (pairs.size() > props.getMaxSize()) pairs.remove(pairs.first());
     }
 
     @Override
