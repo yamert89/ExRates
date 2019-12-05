@@ -96,7 +96,7 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
 
     @Override
     public int hashCode() {
-        return Objects.hash(symbol);
+        return Objects.hash(symbol, 33);
     }
 
     public double getPrice() {
@@ -123,7 +123,8 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
 
         @Override
         public int compare(CurrencyPair o1, CurrencyPair o2) {
-            if (o1.lastUse.toEpochMilli() == o2.lastUse.toEpochMilli()) return 0;
+            if(o1.getSymbol().equals(o2.getSymbol())) return 0;
+            if (o1.lastUse.toEpochMilli() == o2.lastUse.toEpochMilli()) return 1;
             return  o1.lastUse.isAfter(o2.getLastUse()) ? 1 : -1;
         }
     }
