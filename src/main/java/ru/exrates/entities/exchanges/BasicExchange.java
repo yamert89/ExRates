@@ -150,6 +150,8 @@ public abstract class BasicExchange implements Exchange {
         synchronized (pairs){
             for (CurrencyPair p : pairs) {
                 try {
+                    //p.getPriceHistory().add(3.2);
+                    //p.getPriceHistory().add(3.5);
                     currentPrice(p, updatePeriod);
                     priceChange(p, updatePeriod);
                 } catch (JSONException e) {

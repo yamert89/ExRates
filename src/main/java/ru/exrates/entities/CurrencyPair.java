@@ -1,6 +1,7 @@
 package ru.exrates.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,9 +18,9 @@ import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
 @Entity
+@JsonIgnoreProperties({"id", "exchange", "lastUse"})
 public class CurrencyPair implements Comparable<CurrencyPair>{
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore
     @Getter
     private int id;
 
@@ -43,7 +44,6 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @Getter
-    @JsonIgnore
     private BasicExchange exchange;
 
     /*
