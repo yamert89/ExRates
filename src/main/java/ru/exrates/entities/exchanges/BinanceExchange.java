@@ -6,6 +6,7 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 import ru.exrates.entities.Currency;
 import ru.exrates.entities.CurrencyPair;
 import ru.exrates.entities.TimePeriod;
@@ -101,6 +102,7 @@ public class BinanceExchange extends BasicExchange {
         banCode = 418;
         restTemplate.setLimitCode(limitCode);
         restTemplate.setBanCode(banCode);
+        webClient = WebClient.create(URL_ENDPOINT);
         if (!temporary) return;
         name = "binanceExchange";
         limits = new HashSet<>();

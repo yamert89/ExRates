@@ -11,6 +11,7 @@ import org.hibernate.annotations.SortComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.core.annotation.Order;
+import org.springframework.web.reactive.function.client.WebClient;
 import ru.exrates.configs.Properties;
 import ru.exrates.entities.Currency;
 import ru.exrates.entities.CurrencyPair;
@@ -74,6 +75,10 @@ public abstract class BasicExchange implements Exchange {
     @Transient
     RestTemplateImpl restTemplate;
 
+    @Transient
+    WebClient webClient;
+
+    
     @Autowired
     public void setRestTemplate(RestTemplateImpl restTemplate) {
         this.restTemplate = restTemplate;
