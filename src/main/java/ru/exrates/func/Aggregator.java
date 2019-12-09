@@ -148,6 +148,8 @@ public class Aggregator {
                 p -> p.getName().equals(period)).findFirst().orElseThrow();
         for (CurrencyPair reqPair : reqPairs) {
             try {
+                //reqPair.getPriceHistory().add(1.3);
+                //reqPair.getPriceHistory().add(1.6);
                 exch.currentPrice(reqPair, timePeriod.getPeriod());
                 exch.priceChange(reqPair, timePeriod.getPeriod());
             } catch (JSONException e){
