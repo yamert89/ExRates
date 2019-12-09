@@ -124,7 +124,7 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
         @Override
         public int compare(CurrencyPair o1, CurrencyPair o2) {
             if(o1.getSymbol().equals(o2.getSymbol())) return 0;
-            if (o1.lastUse.toEpochMilli() == o2.lastUse.toEpochMilli()) return 1;
+            if (o1.lastUse.toEpochMilli() == o2.lastUse.toEpochMilli()) return o1.getSymbol().compareTo(o2.getSymbol());
             return  o1.lastUse.isAfter(o2.getLastUse()) ? 1 : -1;
         }
     }
