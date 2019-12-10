@@ -1,15 +1,10 @@
 package ru.exrates.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UpdateTimestamp;
 import ru.exrates.entities.exchanges.BasicExchange;
-import ru.exrates.entities.exchanges.secondary.collections.UpdateListenerMap;
 import ru.exrates.utils.JsonSerializers;
 
 import javax.persistence.*;
@@ -34,7 +29,7 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
     @MapKeyColumn(name = "PERIOD")
     @Column(name = "VALUE")
     @JsonSerialize(keyUsing = JsonSerializers.TimePeriodSerializer.class)
-    private Map<TimePeriod, Double> priceChange = new UpdateListenerMap<>(this);
+    private Map<TimePeriod, Double> priceChange = new HashMap<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
     private Collection<Double> priceHistory = new ArrayBlockingQueue<>(20, true); //todo
@@ -47,7 +42,7 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
     private BasicExchange exchange;
 
     /*
-        indexes:
+      indexes:
         0 - price
         1 - priceChange
         2 - priceHistory
@@ -111,7 +106,17 @@ public class CurrencyPair implements Comparable<CurrencyPair>{
 
     public Map<TimePeriod, Double> getPriceChange() {
         lastUse = Instant.now();
-        return priceChange;
+        return Collections.unmodifiableMap(priceChange);
+    }
+
+    public void putInPriceChange(TimePeriod period, Double value){
+       updateTimes[1] = Instant.now().toEpochMilli();
+        priceChange.put(period, value);
+    }
+
+    public void removeFromPriceChange(TimePeriod period){
+       updateTimes[1] = Instant.now().toEpochMilli();
+       priceChange.remove(period);
     }
 
     public Collection<Double> getPriceHistory() {

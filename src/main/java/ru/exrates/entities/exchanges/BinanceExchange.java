@@ -72,7 +72,7 @@ public class BinanceExchange extends BasicExchange {
             logger.debug("price change req skipped");
             return;
         }
-        var change = pair.getPriceChange();
+
         var symbol = "?symbol=" + pair.getSymbol();
         var period = "&interval=";
         String uri = "";
@@ -81,7 +81,7 @@ public class BinanceExchange extends BasicExchange {
             var entity = new JSONArray(stringResponse(uri));
             var array = entity.getJSONArray(0);
             var changeVol = (array.getDouble(2) + array.getDouble(3)) / 2;
-            change.put(per, changeVol);
+            pair.putInPriceChange(per, changeVol);
             logger.debug(String.format("Change period updated on %1$s pair, interval = %2$s | change = %3$s", pair.getSymbol(), per.getName(), changeVol));
         }
     }
@@ -90,11 +90,10 @@ public class BinanceExchange extends BasicExchange {
     public void priceChange (CurrencyPair pair, Duration timeout, Map<String, String> uriVariables) //todo limit > 1 logic
             throws JSONException, LimitExceededException, ErrorCodeException, BanException{
         if (!dataElapsed(pair, timeout, 1)) return;
-        var change = pair.getPriceChange();
         for (TimePeriod per : changePeriods) {
             var entity = new JSONArray(stringResponse(URL_PRICE_CHANGE));
             var array = entity.getJSONArray(0);
-            change.put(per, (array.getDouble(2) + array.getDouble(3)) / 2);
+            pair.putInPriceChange(per, (array.getDouble(2) + array.getDouble(3)) / 2);
         }
     }
 
