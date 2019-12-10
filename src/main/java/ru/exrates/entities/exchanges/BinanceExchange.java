@@ -59,19 +59,8 @@ public class BinanceExchange extends BasicExchange {
         if (!dataElapsed(pair, timeout, 0)) return;
         //var variables = new HashMap<String, String>();
         //variables.put("symbol", pair.getSymbol());
-        var entity = new JSONObject(webClient.get().uri(URL_ENDPOINT + URL_CURRENT_AVG_PRICE + "?symbol=" + pair.getSymbol())
-                .retrieve().onStatus(HttpStatus::is4xxClientError, resp ->{
-                    Exception ex = null;
-                    switch(resp.statusCode().value()){
-                        case 418: ex = new BanException();
-                        break;
-                        case 429: ex = new LimitExceededException(LimitType.WEIGHT);
-                        break;
-                        default:
-                            throw new IllegalStateException("Unexpected value: " + resp.statusCode().value());
-                    }
-                     return Mono.error(ex);
-                        }).bodyToMono(String.class).block());
+        var uri = URL_ENDPOINT + URL_CURRENT_AVG_PRICE + "?symbol=" + pair.getSymbol();
+        var entity = new JSONObject(request(uri));
         var price = Double.parseDouble(entity.getString("price"));
         pair.setPrice(price);
         logger.debug(String.format("Price updated on %1$s pair | = %2$s", pair.getSymbol(), price));
@@ -86,9 +75,10 @@ public class BinanceExchange extends BasicExchange {
         var change = pair.getPriceChange();
         var symbol = "?symbol=" + pair.getSymbol();
         var period = "&interval=";
+        String uri = "";
         for (TimePeriod per : changePeriods) {
-            var entity = new JSONArray(webClient.get().uri(URL_ENDPOINT + URL_PRICE_CHANGE +
-                    symbol + period + per.getName() + "&limit=1" ).retrieve().bodyToMono(String.class).block());
+            uri = URL_ENDPOINT + URL_PRICE_CHANGE +  symbol + period + per.getName() + "&limit=1";
+            var entity = new JSONArray(request(uri));
             var array = entity.getJSONArray(0);
             var changeVol = (array.getDouble(2) + array.getDouble(3)) / 2;
             change.put(per, changeVol);
@@ -102,8 +92,7 @@ public class BinanceExchange extends BasicExchange {
         if (!dataElapsed(pair, timeout, 1)) return;
         var change = pair.getPriceChange();
         for (TimePeriod per : changePeriods) {
-            var entity = new JSONArray(webClient.get().uri(
-                    URL_PRICE_CHANGE).retrieve().bodyToMono(String.class).block());
+            var entity = new JSONArray(request(URL_PRICE_CHANGE));
             var array = entity.getJSONArray(0);
             change.put(per, (array.getDouble(2) + array.getDouble(3)) / 2);
         }
@@ -114,8 +103,8 @@ public class BinanceExchange extends BasicExchange {
     protected void init(){
         limitCode = 429;
         banCode = 418;
-        restTemplate.setLimitCode(limitCode);
-        restTemplate.setBanCode(banCode);
+        //restTemplate.setLimitCode(limitCode);
+        //restTemplate.setBanCode(banCode);
         webClient = WebClient.create(URL_ENDPOINT);
         if (!temporary) return;
         name = "binanceExchange";
@@ -138,7 +127,7 @@ public class BinanceExchange extends BasicExchange {
 
 
         try {
-            var entity = new JSONObject(webClient.get().uri(URL_ENDPOINT + URL_INFO).retrieve().bodyToMono(String.class).block());
+            var entity = new JSONObject(request(URL_ENDPOINT + URL_INFO));
 
 
             JSONArray symbols = null;
@@ -180,7 +169,9 @@ public class BinanceExchange extends BasicExchange {
 
     }
 
-
+    private String request(String uri) throws IllegalStateException, BanException, LimitExceededException{
+        return super.request(uri, String.class);
+    }
 }
 
 

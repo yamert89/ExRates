@@ -11,7 +11,9 @@ import org.hibernate.annotations.SortComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 import ru.exrates.configs.Properties;
 import ru.exrates.entities.Currency;
 import ru.exrates.entities.CurrencyPair;
@@ -184,6 +186,21 @@ public abstract class BasicExchange implements Exchange {
 
     };
 
+    <T> T request(String uri, Class<T> tClass) throws BanException, LimitExceededException, IllegalStateException{
+        return webClient.get().uri(uri).retrieve().onStatus(HttpStatus::is4xxClientError, resp ->{
+            Exception ex = null;
+            switch(resp.statusCode().value()){
+                case 418: ex = new BanException();
+                    break;
+                case 429: ex = new LimitExceededException(LimitType.WEIGHT);
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + resp.statusCode().value());
+            }
+            return Mono.error(ex);
+        }).bodyToMono(tClass).block();
+    }
+
     public abstract void currentPrice(CurrencyPair pair, Duration timeout) throws
             JSONException, NullPointerException, LimitExceededException, ErrorCodeException, BanException;
 
@@ -192,6 +209,8 @@ public abstract class BasicExchange implements Exchange {
 
     public abstract void priceChange(CurrencyPair pair, Duration timeout) throws
             JSONException, LimitExceededException, ErrorCodeException, BanException;
+
+
 
     @Override
     public String toString() {
