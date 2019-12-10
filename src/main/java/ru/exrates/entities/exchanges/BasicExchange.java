@@ -146,7 +146,7 @@ public abstract class BasicExchange implements Exchange {
     }
 
     public boolean dataElapsed(CurrencyPair pair, Duration timeout, int idx){
-        logger.debug(String.format("Pair %1$s updated on field %2$s %3$s | current time = %4$s", pair.getSymbol(), idx, Instant.ofEpochMilli(pair.getUpdateTimes()[idx]), Instant.now()));
+        logger.debug(String.format("Pair %1$s was updated on field %2$s %3$s | current time = %4$s", pair.getSymbol(), idx, Instant.ofEpochMilli(pair.getUpdateTimes()[idx]), Instant.now()));
         return Instant.now().isAfter(Instant.ofEpochMilli(pair.getUpdateTimes()[idx] + timeout.toMillis()));
     }
 

@@ -5,24 +5,18 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-import ru.exrates.entities.Currency;
 import ru.exrates.entities.CurrencyPair;
 import ru.exrates.entities.TimePeriod;
 import ru.exrates.entities.exchanges.secondary.*;
 import ru.exrates.entities.exchanges.secondary.exceptions.BanException;
 import ru.exrates.entities.exchanges.secondary.exceptions.ErrorCodeException;
 import ru.exrates.entities.exchanges.secondary.exceptions.LimitExceededException;
-import ru.exrates.repos.DurationConverter;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.*;
 
 
@@ -56,11 +50,14 @@ public class BinanceExchange extends BasicExchange {
     @Override
     public void currentPrice (CurrencyPair pair, Duration timeout)
             throws JSONException, NullPointerException, LimitExceededException, ErrorCodeException, BanException { //todo timeout
-        if (!dataElapsed(pair, timeout, 0)) return;
+        if (!dataElapsed(pair, timeout, 0)) {
+            logger.debug("current price req skipped");
+            return;
+        }
         //var variables = new HashMap<String, String>();
         //variables.put("symbol", pair.getSymbol());
         var uri = URL_ENDPOINT + URL_CURRENT_AVG_PRICE + "?symbol=" + pair.getSymbol();
-        var entity = new JSONObject(request(uri));
+        var entity = new JSONObject(stringResponse(uri));
         var price = Double.parseDouble(entity.getString("price"));
         pair.setPrice(price);
         logger.debug(String.format("Price updated on %1$s pair | = %2$s", pair.getSymbol(), price));
@@ -71,14 +68,17 @@ public class BinanceExchange extends BasicExchange {
     @Override
     public void priceChange (CurrencyPair pair, Duration timeout)
             throws JSONException, LimitExceededException, ErrorCodeException, BanException {
-        if (!dataElapsed(pair, timeout, 1)) return;
+        if (!dataElapsed(pair, timeout, 1)) {
+            logger.debug("price change req skipped");
+            return;
+        }
         var change = pair.getPriceChange();
         var symbol = "?symbol=" + pair.getSymbol();
         var period = "&interval=";
         String uri = "";
         for (TimePeriod per : changePeriods) {
             uri = URL_ENDPOINT + URL_PRICE_CHANGE +  symbol + period + per.getName() + "&limit=1";
-            var entity = new JSONArray(request(uri));
+            var entity = new JSONArray(stringResponse(uri));
             var array = entity.getJSONArray(0);
             var changeVol = (array.getDouble(2) + array.getDouble(3)) / 2;
             change.put(per, changeVol);
@@ -92,7 +92,7 @@ public class BinanceExchange extends BasicExchange {
         if (!dataElapsed(pair, timeout, 1)) return;
         var change = pair.getPriceChange();
         for (TimePeriod per : changePeriods) {
-            var entity = new JSONArray(request(URL_PRICE_CHANGE));
+            var entity = new JSONArray(stringResponse(URL_PRICE_CHANGE));
             var array = entity.getJSONArray(0);
             change.put(per, (array.getDouble(2) + array.getDouble(3)) / 2);
         }
@@ -127,7 +127,7 @@ public class BinanceExchange extends BasicExchange {
 
 
         try {
-            var entity = new JSONObject(request(URL_ENDPOINT + URL_INFO));
+            var entity = new JSONObject(stringResponse(URL_ENDPOINT + URL_INFO));
 
 
             JSONArray symbols = null;
@@ -169,7 +169,7 @@ public class BinanceExchange extends BasicExchange {
 
     }
 
-    private String request(String uri) throws IllegalStateException, BanException, LimitExceededException{
+    private String stringResponse(String uri) throws IllegalStateException, BanException, LimitExceededException{
         return super.request(uri, String.class);
     }
 }

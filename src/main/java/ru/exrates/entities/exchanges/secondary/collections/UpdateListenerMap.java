@@ -1,12 +1,13 @@
 package ru.exrates.entities.exchanges.secondary.collections;
 
+import org.hibernate.collection.internal.PersistentMap;
 import ru.exrates.entities.CurrencyPair;
 import ru.exrates.entities.exchanges.BasicExchange;
 
 import java.time.Instant;
 import java.util.HashMap;
 
-public class UpdateListenerMap<K, V> extends HashMap<K, V> {
+public class UpdateListenerMap<K, V> extends PersistentMap<K, V> {
     private CurrencyPair pair;
 
     public UpdateListenerMap(CurrencyPair pair) {
